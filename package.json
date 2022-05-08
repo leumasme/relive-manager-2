@@ -22,7 +22,6 @@
     "electron-builder",
     "electron-log",
     "tslint",
-    "ts-jest",
     "electron-settings",
     "electron-updater",
     "rollup"
@@ -45,7 +44,6 @@
     "start:electron:nodemon": "nodemon",
     "start:electron:dev": "npm-run-all -s build:electron:dev start:electron:nodemon",
     "start:electron": "npm-run-all -p build:electron:dev:watch start:electron:dev",
-    "test": "jest --config jest.config.json",
     "postinstall": "electron-builder install-app-deps",
     "prepack": "npm run build",
     "pack": "electron-builder --dir",
@@ -83,7 +81,6 @@
     "eslint-plugin-jsdoc": "^37.5.1",
     "eslint-plugin-prefer-arrow": "^1.2.3",
     "html-minifier": "^4.0.0",
-    "jest": "^27.0.4",
     "nodemon": "^2.0.7",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.3.1",
@@ -98,7 +95,6 @@
     "svelte-check": "^2.2.0",
     "svelte-preprocess": "^4.7.3",
     "terser": "^5.10.0",
-    "ts-jest": "^27.0.3",
     "tslib": "^2.3.0",
     "typescript": "^4.3.4"
   },
