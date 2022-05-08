@@ -22,9 +22,13 @@
 
 <script lang="ts">
   export let name: string;
+  let startcount = parseInt(localStorage.getItem("startcount") ?? "0");
+  localStorage.setItem("startcount", (++startcount).toString());
+  console.log("This is start count #" + startcount);
 </script>
 
 <main>
   <h1>Hello {name}!</h1>
   <p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+  <p>This is startup #{startcount}</p>
 </main>

@@ -1,19 +1,20 @@
 {
-  "name": "electron-svelte-typescript",
-  "description": "Template for desktop apps written with Electron, Svelte and Typescript.",
+  "name": "relive-manager",
+  "description": "Replay Manager for Radeon ReLive.",
   "version": "0.1.0",
+  "private": true,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/fuzzc0re/electron-svelte-typescript.git"
+    "url": "git+https://github.com/leumasme/relive-manager-2.git"
   },
   "author": {
-    "name": "fuzzc0re",
-    "email": "fuzzc0re@protonmail.com",
-    "url": "https://github.com/fuzzc0re"
+    "name": "leumasme",
+    "email": "samumert+npmdmme@gmail.com",
+    "url": "https://github.com/leumasme"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/fuzzc0re/electron-svelte-typescript/issues"
+    "url": "https://github.com/leumasme/relive-manager-2/issues"
   },
   "keywords": [
     "electron",
@@ -26,7 +27,7 @@
     "electron-updater",
     "rollup"
   ],
-  "homepage": "https://github.com/fuzzc0re/electron-svelte-typescript#readme",
+  "homepage": "https://github.com/leumasme/relive-manager-2#readme",
   "main": "build/index.js",
   "scripts": {
     "prestart": "cross-env NODE_ENV=development node scripts/preBuild.js",
@@ -58,9 +59,7 @@
     "preversion": "npm-run-all -s lint format"
   },
   "dependencies": {
-    "electron-log": "^4.3.5",
-    "electron-store": "^8.0.0",
-    "electron-updater": "^4.3.9"
+    "electron-log": "^4.3.5"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^21.0.1",
@@ -99,28 +98,15 @@
     "typescript": "^4.3.4"
   },
   "build": {
-    "productName": "Electron Svelte Typescript",
-    "appId": "electron.svelte.typescript",
-    "copyright": "Copyright © 2021 ${author}",
+    "productName": "Replay Manager",
+    "appId": "temm.relive.manager",
+    "copyright": "Copyright © 2022 ${author}",
+    "icon": "public/favicon.png",
     "win": {
       "target": [
         "nsis"
-      ]
-    },
-    "mac": {
-      "target": [
-        "dmg"
       ],
-      "category": "productivity",
-      "type": "distribution",
-      "hardenedRuntime": "true"
-    },
-    "linux": {
-      "target": [
-        "AppImage",
-        "snap"
-      ],
-      "category": "productivity"
+      "icon": "public/icon.ico"
     },
     "files": [
       "build/**/*",
@@ -133,8 +119,8 @@
     "publish": [
       {
         "provider": "github",
-        "owner": "fuzzc0re",
-        "repo": "electron-svelte-typescript"
+        "owner": "leumasme",
+        "repo": "relive-manager-2"
       }
     ]
   }
