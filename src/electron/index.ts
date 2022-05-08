@@ -27,17 +27,20 @@ const createWindow = () => {
     height: 680,
     webPreferences: {
       devTools: isProd ? false : true,
-      contextIsolation: true,
+      nodeIntegration: true,
+      contextIsolation: false,
     },
   });
+
+  mainWindow.removeMenu();
 
   const url =
     // process.env.NODE_ENV === "production"
     isProd
       ? // in production, use the statically build version of our application
-        `file://${join(__dirname, "public", "index.html")}`
+      `file://${join(__dirname, "public", "index.html")}`
       : // in dev, target the host and port of the local rollup web server
-        "http://localhost:5000";
+      "http://localhost:5000";
 
   mainWindow.loadURL(url).catch((err) => {
     logger.error(JSON.stringify(err));
@@ -54,20 +57,14 @@ const createWindow = () => {
 app.on("ready", createWindow);
 
 app.on("web-contents-created", (_evt, contents) => {
-  logger.info(e);
   // Security of webviews
   contents.on("will-attach-webview", (event, webPreferences, params) => {
-    logger.info(event, params);
+    logger.info("will-attach-webview", event, params);
     // Strip away preload scripts if unused or verify their location is legitimate
     delete webPreferences.preload;
 
     // Disable Node.js integration
     webPreferences.nodeIntegration = false;
-
-    // Verify URL being loaded
-    // if (!params.src.startsWith(`file://${join(__dirname)}`)) {
-    //   event.preventDefault(); // We do not open anything now
-    // }
   });
 
   contents.on("will-navigate", (event, navigationUrl) => {
