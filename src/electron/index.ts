@@ -13,14 +13,19 @@ logger.info("App starting...");
 
 let mainWindow: BrowserWindow | null;
 
+process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
+
 const createWindow = () => {
   mainWindow = new BrowserWindow({
     width: 900,
     height: 680,
+    minWidth: 700,
+    minHeight: 450,
     webPreferences: {
       devTools: isProd ? false : true,
       nodeIntegration: true,
       contextIsolation: false,
+      webSecurity: false
     },
   });
 

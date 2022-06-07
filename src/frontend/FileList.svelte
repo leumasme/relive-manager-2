@@ -36,7 +36,7 @@
   import { getFiles } from "./utils";
   // ParsedPath of all mp4 files in the folder
   let fileProm = getFiles(videoPath).then((files) =>
-    files.map((f) => parse(f)).filter((f) => f.ext == ".mp4")
+    files.map((f) => parse(f)).filter((f) => f.ext == ".mp4" && !f.dir.includes("replay_cache"))
   );
 
   import type { ParsedPath } from "path";

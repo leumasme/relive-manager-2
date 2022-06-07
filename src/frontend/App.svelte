@@ -23,8 +23,13 @@
 </style>
 
 <script lang="ts">
+  import type { ParsedPath } from "path";
+
   import { HSplitPane } from "svelte-split-pane";
   import FileList from "./FileList.svelte";
+  import Studio from "./Studio.svelte";
+
+  let selectedFile: ParsedPath | null = null;
 
   let startcount = parseInt(localStorage.getItem("startcount") ?? "0");
   localStorage.setItem("startcount", (++startcount).toString());
@@ -35,9 +40,11 @@
   <div class="wrapper">
     <HSplitPane minLeftPaneSize="15ch" leftPaneSize="20ch" minRightPaneSize="50%" rightPaneSize="calc(100vw - 20ch)">
       <section slot="left" class="fullsize" style="background-color: #252526">
-        <FileList/>
+        <FileList on:select="{(f) => (selectedFile = f.detail)}" />
       </section>
-      <section slot="right" class="fullsize" style="background-color: #1E1E1E"></section>
+      <section slot="right" class="fullsize" style="background-color: #1E1E1E">
+        <Studio bind:selectedFile />
+      </section>
     </HSplitPane>
   </div>
 </main>
