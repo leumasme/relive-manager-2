@@ -26,14 +26,13 @@
   import type { ParsedPath } from "path";
 
   import { HSplitPane } from "svelte-split-pane";
+  import { db } from "./database";
   import FileList from "./FileList.svelte";
   import Studio from "./Studio.svelte";
 
   let selectedFile: ParsedPath | null = null;
 
-  let startcount = parseInt(localStorage.getItem("startcount") ?? "0");
-  localStorage.setItem("startcount", (++startcount).toString());
-  console.log("This is start count #" + startcount);
+  console.log("This is start count #" + db.startCount++);
 </script>
 
 <main>
