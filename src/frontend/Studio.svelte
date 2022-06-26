@@ -13,10 +13,23 @@
       ". ."
       ". .";
   }
+  .wrap {
+    display: flex;
+    flex-direction: column;
+  }
+  .wrap > select {
+    flex: 1;
+    margin: 0px;
+  }
+  .wrap > * {
+    border-radius: 0px;
+    background-color: #36393F;
+    color: white;
+  }
 </style>
 
 <script lang="ts">
-  import { db, tagForName } from "./database";
+  import { tagForName } from "./database";
 
   import { selectedVideo } from "./stores";
 
@@ -38,16 +51,13 @@
   <!-- svelte-ignore a11y-media-has-caption -->
   <div class="container">
     <video controls width="100%" src="{filePath}"></video>
-    <div>
-      <div style="padding:10px;">
-        <input on:keydown="{addTag}" type="text" style="width:100%" />
-        <i>Tags</i>
-        <select multiple style="width:100%;height:100%">
-          {#each $selectedVideo.tags as tag}
-            <option>{tag.name}</option>
-          {/each}
-        </select>
-      </div>
+    <div class="wrap" style="padding:10px">
+      <input on:keydown="{addTag}" type="text" />
+      <select multiple style="width:100%">
+        {#each $selectedVideo.tags as tag}
+          <option>{tag.name}</option>
+        {/each}
+      </select>
     </div>
     <i>Actions</i>
     <i>Variations</i>
