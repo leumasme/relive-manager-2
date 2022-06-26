@@ -1,6 +1,6 @@
 export type Tag = {
   name: string;
-  color: string;
+  color?: string;
 }
 export type Action = {
   type: "trim" | "compressToSize",
@@ -54,3 +54,12 @@ export const db: DatabaseRoot = createProxy(localStorage.getItem("database") ? J
   tags: [],
   startCount: 0
 });
+
+export function tagForName(name: string): Tag {
+  // if tag exists, return it. else add a tag and return it
+  const tag = db.tags.find(t => t.name.toLowerCase() == name.toLowerCase());
+  if (tag) return tag;
+  const newTag = { name };
+  db.tags.push(newTag);
+  return newTag;
+}
