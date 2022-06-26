@@ -27,18 +27,47 @@
     /* text not selectable */
     user-select: none;
   }
+  .unseen {
+    background-color: #5e1515;
+  }
 </style>
 
 <script lang="ts">
   export let videoPath = "Y:/ReLive Videos/Videos";
 
-  const { parse } = require("path") as typeof import("path");
-  import { getFiles } from "./utils";
-  // ParsedPath of all mp4 files in the folder
-  let fileProm = getFiles(videoPath).then((files) =>
-    files.map((f) => parse(f)).filter((f) => f.ext == ".mp4" && !f.dir.includes("replay_cache"))
-  );
+  import { parse } from "path";
+  import { db } from "./database";
+  import chokidar from "chokidar";
 
+  let fileProm = new Promise<void>((resolve) => {
+    chokidar
+      .watch(videoPath, {
+        awaitWriteFinish: true,
+        ignored: (p) => {
+          if (p.includes("_cache")) return true;
+          let parsed = parse(p);
+          if (parsed.ext != "" && parsed.ext != ".mp4") return true
+          return false;
+        },
+        ignoreInitial: false,
+      })
+      .on("add", (path) => {
+        console.log(path, db.videos.length);
+        if (db.videos.find((v) => v.path == path)) return;
+        db.videos.push({
+          path,
+          name: parse(path).base.split(".").slice(0, -1).join("."),
+          seen: false,
+          tags: [],
+          variations: [],
+        });
+        console.log("New File: ", path);
+      })
+      .on("ready", () => {
+        console.log("Ready");
+        resolve();
+      });
+  });
   import type { ParsedPath } from "path";
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher<{ select: ParsedPath }>();
@@ -47,10 +76,18 @@
 <div class="filelist">
   {#await fileProm}
     Loading Files...
-  {:then files}
-    {#each files as file}
-      <div class="file" data-path="{file}" on:click="{() => dispatch('select', file)}">
-        {file.name}
+  {:then}
+    {#each db.videos as video}
+      <div
+        class="file"
+        class:unseen="{!video.seen}"
+        on:click="{function () {
+          dispatch('select', parse(video.path));
+          video.seen = true;
+          video = video;
+        }}"
+      >
+        {video.name}
       </div>
     {/each}
   {/await}

@@ -6,18 +6,21 @@ export type Action = {
   type: "trim" | "compressToSize",
   args: any[],
 }
-export type DatabaseRoot = {
-  videos: {
-    path: string,
+
+export type Video = {
+  path: string,
+  name: string,
+  seen: boolean,
+  tags: Tag[],
+  variations: {
+    filename: string,
     name: string,
-    seen: boolean,
-    tags: Tag[],
-    variations: {
-      filename: string,
-      name: string,
-      actions: Action[]
-    }[]
-  }[],
+    actions: Action[]
+  }[]
+};
+
+export type DatabaseRoot = {
+  videos: Video[],
   tags: Tag[], // Order here controls tag importance
   startCount: number
 }
@@ -39,15 +42,11 @@ function createProxy(obj: any): any {
 
 let saveId: NodeJS.Immediate | null = null;
 function saveStorage() {
-  console.log("Saving")
   if (saveId == null) saveId = setImmediate(() => {
-    saveStorageNow();
     saveId = null;
+    console.log("Saving")
+    localStorage.setItem("database", JSON.stringify(db));
   });
-}
-
-function saveStorageNow() {
-  localStorage.setItem("database", JSON.stringify(db));
 }
 
 export const db: DatabaseRoot = createProxy(localStorage.getItem("database") ? JSON.parse(localStorage.getItem("database")!) : {
