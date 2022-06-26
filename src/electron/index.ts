@@ -17,7 +17,7 @@ process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 
 const createWindow = () => {
   mainWindow = new BrowserWindow({
-    width: 900,
+    width: 1150,
     height: 680,
     minWidth: 700,
     minHeight: 450,

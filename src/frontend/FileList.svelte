@@ -38,6 +38,7 @@
   import { parse } from "path";
   import { db } from "./database";
   import chokidar from "chokidar";
+  import { selectedVideo } from "./stores";
 
   let fileProm = new Promise<void>((resolve) => {
     chokidar
@@ -46,13 +47,12 @@
         ignored: (p) => {
           if (p.includes("_cache")) return true;
           let parsed = parse(p);
-          if (parsed.ext != "" && parsed.ext != ".mp4") return true
+          if (parsed.ext != "" && parsed.ext != ".mp4") return true;
           return false;
         },
         ignoreInitial: false,
       })
       .on("add", (path) => {
-        console.log(path, db.videos.length);
         if (db.videos.find((v) => v.path == path)) return;
         db.videos.push({
           path,
@@ -68,9 +68,6 @@
         resolve();
       });
   });
-  import type { ParsedPath } from "path";
-  import { createEventDispatcher } from "svelte";
-  const dispatch = createEventDispatcher<{ select: ParsedPath }>();
 </script>
 
 <div class="filelist">
@@ -81,10 +78,10 @@
       <div
         class="file"
         class:unseen="{!video.seen}"
-        on:click="{function () {
-          dispatch('select', parse(video.path));
+        on:click="{() => {
           video.seen = true;
           video = video;
+          selectedVideo.set(video);
         }}"
       >
         {video.name}
