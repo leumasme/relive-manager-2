@@ -18,12 +18,14 @@
 
   function addTag(ev: KeyboardEvent) {
     if (ev.key != "Enter") return;
-    let tag = ev.target as HTMLInputElement;
-    if (tag.value == "") return;
+    let input = (ev.target as HTMLInputElement).value.trim();
+    if (input == "") return;
 
-    if ($selectedVideo!.tags.find((t) => t.name.toLowerCase() == tag.value.toLowerCase())) return;
+    let tag = tagForName(input);
 
-    $selectedVideo!.tags.push(tagForName(tag.value));
+    if ($selectedVideo!.tags.find((t) => t.name == tag.name)) return;
+
+    $selectedVideo!.tags.push(tag);
     $selectedVideo = $selectedVideo;
   }
 </script>
