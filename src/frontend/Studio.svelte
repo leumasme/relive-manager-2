@@ -17,34 +17,13 @@
     display: flex;
     flex-direction: column;
   }
-  .wrap > select {
-    flex: 1;
-    margin: 0px;
-  }
-  .wrap > * {
-    border-radius: 0px;
-    background-color: #36393F;
-    color: white;
-  }
 </style>
 
 <script lang="ts">
-  import { tagForName } from "./database";
-
   import { selectedVideo } from "./stores";
+  import TagManager from "./TagManager.svelte";
 
   $: filePath = $selectedVideo?.path;
-
-  function addTag(ev: KeyboardEvent) {
-    if (ev.key != "Enter") return;
-    let tag = ev.target as HTMLInputElement;
-    if (tag.value == "") return;
-
-    if ($selectedVideo!.tags.find((t) => t.name.toLowerCase() == tag.value.toLowerCase())) return;
-
-    $selectedVideo!.tags.push(tagForName(tag.value));
-    $selectedVideo = $selectedVideo;
-  }
 </script>
 
 {#if $selectedVideo}
@@ -52,12 +31,7 @@
   <div class="container">
     <video controls width="100%" src="{filePath}"></video>
     <div class="wrap" style="padding:10px">
-      <input on:keydown="{addTag}" type="text" />
-      <select multiple style="width:100%">
-        {#each $selectedVideo.tags as tag}
-          <option>{tag.name}</option>
-        {/each}
-      </select>
+      <TagManager />
     </div>
     <i>Actions</i>
     <i>Variations</i>
