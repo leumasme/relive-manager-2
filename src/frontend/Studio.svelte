@@ -27,15 +27,17 @@
 </script>
 
 {#if $selectedVideo}
-  <!-- svelte-ignore a11y-media-has-caption -->
-  <div class="container">
-    <video controls width="100%" src="{filePath}"></video>
-    <div class="wrap" style="padding:10px">
-      <TagManager />
+  {#key $selectedVideo.path}
+    <!-- svelte-ignore a11y-media-has-caption -->
+    <div class="container">
+      <video controls width="100%" src="{filePath}"></video>
+      <div class="wrap" style="padding:10px">
+        <TagManager />
+      </div>
+      <i>Actions</i>
+      <i>Variations</i>
     </div>
-    <i>Actions</i>
-    <i>Variations</i>
-  </div>
+  {/key}
 {:else}
   <h1>Select a Video...</h1>
 {/if}
