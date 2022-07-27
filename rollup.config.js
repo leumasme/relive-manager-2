@@ -65,10 +65,10 @@ export default {
     // some cases you'll need additional configuration -
     // consult the documentation for details:
     // https://github.com/rollup/plugins/tree/master/packages/commonjs
-    // resolve({
-    //   browser: true,
-    //   dedupe: ["svelte"],
-    // }),
+    resolve({
+      browser: true,
+      dedupe: ["svelte"],
+    }),
     commonjs(),
     json(),
     typescript({

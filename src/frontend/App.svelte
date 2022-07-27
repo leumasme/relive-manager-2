@@ -17,17 +17,12 @@
     padding: 0;
     overflow: none;
   }
-  .fullsize {
-    width: 100%;
-    height: 100%;
-    overflow: none;
-  }
 </style>
 
 <script lang="ts">
-  import { HSplitPane } from "svelte-split-pane";
   import { db } from "./database";
   import FileList from "./FileList.svelte";
+  import SplitPane from "./SplitPane.svelte";
   import Studio from "./Studio.svelte";
 
   console.log("This is start count #" + db.startCount++);
@@ -35,13 +30,13 @@
 
 <main>
   <div class="wrapper">
-    <HSplitPane minLeftPaneSize="15ch" leftPaneSize="20ch" minRightPaneSize="50%" rightPaneSize="calc(100vw - 20ch)">
-      <section slot="left" class="fullsize" style="background-color: #252526">
+    <SplitPane type="horizontal" min="{20}" max="{50}" pos="{20}">
+      <section slot="a" style="height:100%; background-color: #252526">
         <FileList />
       </section>
-      <section slot="right" class="fullsize" style="background-color: #1E1E1E">
+      <section slot="b" style="height: 100%; background-color: #1E1E1E">
         <Studio />
       </section>
-    </HSplitPane>
+    </SplitPane>
   </div>
 </main>
