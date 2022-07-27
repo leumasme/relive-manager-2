@@ -11,3 +11,9 @@ export async function getFiles(dir: string): Promise<string[]> {
     );
     return Array.prototype.concat(...files);
 }
+
+// Parse duration like "00:00:53.424958" to seconds
+export function parseDuration(duration: string): number {
+    const [hours, minutes, seconds] = duration.split(":").map(Number);
+    return hours * 3600 + minutes * 60 + seconds;
+}

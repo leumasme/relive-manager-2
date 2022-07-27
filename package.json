@@ -104,6 +104,9 @@
     "appId": "temm.relive.manager",
     "copyright": "Copyright © 2022 ${author}",
     "icon": "public/favicon.png",
+    "extraFiles": [
+      "ffmpeg.exe"
+    ],
     "win": {
       "target": [
         "nsis"

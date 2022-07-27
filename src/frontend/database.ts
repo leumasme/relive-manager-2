@@ -3,8 +3,8 @@ export type Tag = {
   color?: string;
 }
 export type Action = {
-  type: "trim" | "compressToSize",
-  args: any[],
+  type: "trim" | "compressToSize" | "extractAudio",
+  args?: any[],
 }
 
 export type Video = {
