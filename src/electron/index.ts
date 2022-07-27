@@ -27,6 +27,8 @@ const createWindow = () => {
       contextIsolation: false,
       webSecurity: false
     },
+    title: "Replay Manager",
+    show: false
   });
 
   mainWindow.removeMenu();
@@ -44,7 +46,11 @@ const createWindow = () => {
     app.quit();
   });
 
-  if (!isProd) mainWindow.webContents.openDevTools();
+  // if (!isProd) mainWindow.webContents.openDevTools();
+
+  mainWindow.once("ready-to-show", ()=>{
+    mainWindow!.show();
+  })
 
   mainWindow.on("closed", () => {
     mainWindow = null;

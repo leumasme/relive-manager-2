@@ -39,6 +39,7 @@ export default {
     format: "cjs",
     name: "fluide",
     file: "public/build/bundle.js",
+    exports: "default" // silence main.ts unnamed export warning
   },
   plugins: [
     svelte({
