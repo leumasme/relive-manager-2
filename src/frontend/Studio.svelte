@@ -20,6 +20,7 @@
 </style>
 
 <script lang="ts">
+  import SingleVideoActions from "./single_video/Actions.svelte";
   import { selectedVideo } from "./stores";
   import TagManager from "./TagManager.svelte";
 
@@ -34,7 +35,9 @@
       <div class="wrap" style="padding:10px">
         <TagManager />
       </div>
-      <i>Actions</i>
+      <div>
+        <SingleVideoActions />
+      </div>
       <i>Variations</i>
     </div>
   {/key}
