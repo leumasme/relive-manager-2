@@ -7,6 +7,8 @@ import { parse } from "url";
 
 import logger from "./utils/logger";
 
+console.time("start-till-ready")
+
 const isProd = process.env.NODE_ENV === "production" || app.isPackaged;
 
 logger.info("App starting...");
@@ -16,6 +18,8 @@ let mainWindow: BrowserWindow | null;
 process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
 
 const createWindow = () => {
+  console.timeEnd("start-till-ready")
+  console.time("ready-till-show")
   mainWindow = new BrowserWindow({
     width: 1150,
     height: 680,
@@ -46,9 +50,10 @@ const createWindow = () => {
     app.quit();
   });
 
-  // if (!isProd) mainWindow.webContents.openDevTools();
+  if (!isProd) mainWindow.webContents.openDevTools();
 
-  mainWindow.once("ready-to-show", ()=>{
+  mainWindow.once("ready-to-show", () => {
+    console.timeEnd("ready-till-show");
     mainWindow!.show();
   })
 
