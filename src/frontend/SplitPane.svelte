@@ -36,7 +36,7 @@
   }
 
   .horizontal {
-    padding: 0 8px;
+    padding-right: 8px;
     width: 0;
     height: 100%;
     cursor: ew-resize;
@@ -202,7 +202,7 @@
   {#if !fixed}
     <div
       class="{type} divider"
-      style="{side}: calc({pos}% - 8px)"
+      style="{side}: calc({pos}%)"
       use:drag="{setPos}"
       use:touchDrag="{setTouchPos}"
     ></div>
