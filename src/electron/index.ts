@@ -5,6 +5,9 @@ import {
 import { join } from "path";
 import { parse } from "url";
 
+import * as remote from "@electron/remote/main";
+remote.initialize();
+
 import logger from "./utils/logger";
 
 console.time("start-till-ready")
@@ -34,13 +37,12 @@ const createWindow = () => {
     title: "Replay Manager",
     show: false
   });
-
   mainWindow.removeMenu();
-
+  
   const url =
-    // process.env.NODE_ENV === "production"
-    isProd
-      ? // in production, use the statically build version of our application
+  // process.env.NODE_ENV === "production"
+  isProd
+  ? // in production, use the statically build version of our application
       `file://${join(__dirname, "public", "index.html")}`
       : // in dev, target the host and port of the local rollup web server
       "http://localhost:5000";
@@ -53,6 +55,7 @@ const createWindow = () => {
   if (!isProd) mainWindow.webContents.openDevTools();
 
   mainWindow.once("ready-to-show", () => {
+    remote.enable(mainWindow!.webContents);
     console.timeEnd("ready-till-show");
     mainWindow!.show();
   })

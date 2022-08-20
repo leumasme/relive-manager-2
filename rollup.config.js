@@ -41,6 +41,7 @@ export default {
     file: "public/build/bundle.js",
     exports: "default" // silence main.ts unnamed export warning
   },
+  external: ["electron"],
   plugins: [
     svelte({
       preprocess: sveltePreprocess({
@@ -61,15 +62,15 @@ export default {
       compress: production ? true : false,
     }),
 
+    resolve({
+      browser: true,
+      dedupe: ["svelte"]
+    }),
     // If you have external dependencies installed from
     // npm, you'll most likely need these plugins. In
     // some cases you'll need additional configuration -
     // consult the documentation for details:
     // https://github.com/rollup/plugins/tree/master/packages/commonjs
-    resolve({
-      browser: true,
-      dedupe: ["svelte"],
-    }),
     commonjs(),
     json(),
     typescript({
