@@ -31,7 +31,7 @@
   function actionOpenExplorer() {
     $activeAction = ExportAction;
   }
-  </script>
+</script>
 
 <div class="wrapper" class:hidden="{$activeAction}">
   <button on:click="{actionDelete}"> Delete </button>

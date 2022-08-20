@@ -1,4 +1,4 @@
-declare module "svelte-split-pane";/* {
+declare module "svelte-split-pane"; /* {
     // the module exports HSplitPane and VSplit pane.
     // they export events: updateCallback, onMouseDown, onMouseUp
 

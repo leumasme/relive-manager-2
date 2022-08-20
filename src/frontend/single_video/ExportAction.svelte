@@ -14,7 +14,7 @@
   }
   .dragarea {
     box-sizing: border-box;
-    background-color: #E7ECBA;
+    background-color: #e7ecba;
     border: 1px dashed #aaa;
     width: 100px;
     size: 100px;
@@ -27,7 +27,7 @@
   export let activeAction: Writable<SvelteComponent | false>;
   import { exec } from "child_process";
   import { selectedVariation, selectedVideo } from "../stores";
-  import { BrowserWindow } from "@electron/remote";  
+  import { BrowserWindow } from "@electron/remote";
 
   let path = $selectedVariation?.path ?? $selectedVideo!.path;
 
@@ -51,7 +51,7 @@
 
 <div>
   <div class="horizontal">
-    <div class="dragarea" draggable="true" on:dragstart="{onDrag}">Export <br>(drag me)</div>
+    <div class="dragarea" draggable="true" on:dragstart="{onDrag}">Export <br />(drag me)</div>
     <button on:click="{openExplorer}">View in Explorer</button>
   </div>
   <button on:click="{exit}">Exit</button>

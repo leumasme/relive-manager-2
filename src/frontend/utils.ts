@@ -27,4 +27,4 @@ export function generateVariationPath(ext: string) {
   let fileName = now.toJSON().replaceAll(":", "-");
 
   return `${basePath}/${fileName}.${ext}`;
-} 
+}

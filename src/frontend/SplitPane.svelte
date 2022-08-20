@@ -200,12 +200,7 @@
   </div>
 
   {#if !fixed}
-    <div
-      class="{type} divider"
-      style="{side}: calc({pos}%)"
-      use:drag="{setPos}"
-      use:touchDrag="{setTouchPos}"
-    ></div>
+    <div class="{type} divider" style="{side}: calc({pos}%)" use:drag="{setPos}" use:touchDrag="{setTouchPos}"></div>
   {/if}
 </div>
 

@@ -1,7 +1,4 @@
-import {
-  app,
-  BrowserWindow,
-} from "electron";
+import { app, BrowserWindow } from "electron";
 import { join } from "path";
 import { parse } from "url";
 
@@ -10,7 +7,7 @@ remote.initialize();
 
 import logger from "./utils/logger";
 
-console.time("start-till-ready")
+console.time("start-till-ready");
 
 const isProd = process.env.NODE_ENV === "production" || app.isPackaged;
 
@@ -18,11 +15,11 @@ logger.info("App starting...");
 
 let mainWindow: BrowserWindow | null;
 
-process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true';
+process.env["ELECTRON_DISABLE_SECURITY_WARNINGS"] = "true";
 
 const createWindow = () => {
-  console.timeEnd("start-till-ready")
-  console.time("ready-till-show")
+  console.timeEnd("start-till-ready");
+  console.time("ready-till-show");
   mainWindow = new BrowserWindow({
     width: 1150,
     height: 680,
@@ -32,20 +29,18 @@ const createWindow = () => {
       devTools: isProd ? false : true,
       nodeIntegration: true,
       contextIsolation: false,
-      webSecurity: false
+      webSecurity: false,
     },
     title: "Replay Manager",
-    show: false
+    show: false,
   });
   mainWindow.removeMenu();
-  
-  const url =
-  // process.env.NODE_ENV === "production"
-  isProd
-  ? // in production, use the statically build version of our application
-      `file://${join(__dirname, "public", "index.html")}`
-      : // in dev, target the host and port of the local rollup web server
-      "http://localhost:5000";
+
+  const url = isProd
+    ? // in production, use the statically build version of our application
+    `file://${join(__dirname, "public", "index.html")}`
+    : // in dev, target the host and port of the local rollup web server
+    "http://localhost:5000";
 
   mainWindow.loadURL(url).catch((err) => {
     logger.error(JSON.stringify(err));
@@ -58,7 +53,7 @@ const createWindow = () => {
     remote.enable(mainWindow!.webContents);
     console.timeEnd("ready-till-show");
     mainWindow!.show();
-  })
+  });
 
   mainWindow.on("closed", () => {
     mainWindow = null;

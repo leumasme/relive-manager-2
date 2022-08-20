@@ -2,10 +2,12 @@ import { spawn } from "child_process";
 import { parseDuration } from "./utils";
 
 export function runFFmpegCommand(args: string[]): AsyncIterable<[string, string]> {
-  let process = spawn("ffmpeg", args)
+  let process = spawn("ffmpeg", args);
 
   let buffer: ([string, string] | null)[] = [];
-  type ResolveFunc = (value: IteratorResult<[string, string], any> | PromiseLike<IteratorResult<[string, string], any>>) => void;
+  type ResolveFunc = (
+    value: IteratorResult<[string, string], any> | PromiseLike<IteratorResult<[string, string], any>>
+  ) => void;
   let waiter: ResolveFunc | null = null;
 
   // On STDOUT, resolve if already waiting, otherwise push data to buffer
@@ -35,7 +37,7 @@ export function runFFmpegCommand(args: string[]): AsyncIterable<[string, string]
       return;
     }
     buffer.push(null);
-  })
+  });
 
   return {
     [Symbol.asyncIterator]() {
@@ -60,19 +62,27 @@ export function runFFmpegCommand(args: string[]): AsyncIterable<[string, string]
               waiter = resolve;
             }
           });
-        }
-      }
-    }
-  }
+        },
+      };
+    },
+  };
 }
 
 type FFmpegProgress = {
-  current_size: number, bitrate: number, dropped_frames: number, duplicate_frames: number, processed_time: number, status: string, speed: number
+  current_size: number;
+  bitrate: number;
+  dropped_frames: number;
+  duplicate_frames: number;
+  processed_time: number;
+  status: string;
+  speed: number;
 };
 function parseFFmpegProgress(input: string): FFmpegProgress {
   let entries: Record<string, string> = Object.fromEntries(
-    input.split("\n").filter(l => l.trim().length > 0)
-      .map(line => line.split("=").map(l => l.trim()))
+    input
+      .split("\n")
+      .filter((l) => l.trim().length > 0)
+      .map((line) => line.split("=").map((l) => l.trim()))
   );
   return {
     current_size: parseInt(entries["total_size"]),
@@ -82,29 +92,32 @@ function parseFFmpegProgress(input: string): FFmpegProgress {
     processed_time: parseInt(entries["out_time_us"]) / 1000 / 1000,
     status: entries["progress"], // "continue" | "end" ?
     speed: parseInt(entries["speed"].replace("x", "")),
-  }
+  };
 }
 
 export type Progress = {
-  progress: number, speed: number, total: number,
-  progressPercent: number, eta: number
+  progress: number;
+  speed: number;
+  total: number;
+  progressPercent: number;
+  eta: number;
 };
 export async function* extractAudio(from: string, to: string) {
-  let output = runFFmpegCommand([
-    "-i", from, "-q:a", "0", "-map", "a", to, "-y", "-progress", "pipe:1"
-  ]);
+  let output = runFFmpegCommand(["-i", from, "-q:a", "0", "-map", "a", to, "-y", "-progress", "pipe:1"]);
   // let startTime = Date.now();
   let duration: number | null = null;
   for await (let update of output) {
     if (update[0] == "stdout") {
-      let data = parseFFmpegProgress(update[1])
+      let data = parseFFmpegProgress(update[1]);
       yield {
-        progress: data.processed_time, speed: data.speed, total: duration,
-        progressPercent: data.processed_time / (duration ?? 0) * 100,
-        eta: ((duration ?? 0) - data.processed_time) / data.speed
-      }
+        progress: data.processed_time,
+        speed: data.speed,
+        total: duration,
+        progressPercent: (data.processed_time / (duration ?? 0)) * 100,
+        eta: ((duration ?? 0) - data.processed_time) / data.speed,
+      };
     } else if (duration == null) {
-      let matches = update[1].match(/Duration: +([0-9]+:[0-9]+:[0-9.]+)/)
+      let matches = update[1].match(/Duration: +([0-9]+:[0-9]+:[0-9.]+)/);
       if (matches != null) {
         duration = parseDuration(matches[1]);
         console.log("Found duration:", duration);

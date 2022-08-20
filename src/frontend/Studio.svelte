@@ -47,7 +47,7 @@
         if (del) {
           db.videos.splice(db.videos.indexOf($selectedVideo!), 1);
           $selectedVideo = null;
-        } 
+        }
       }
       return;
     }

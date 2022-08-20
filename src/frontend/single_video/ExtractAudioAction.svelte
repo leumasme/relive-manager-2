@@ -58,8 +58,8 @@
 
     let variationName = "Audio";
     let i = 1;
-    while ($selectedVideo!.variations.find(v => v.name == variationName)) {
-      variationName = "Audio " + (i++);
+    while ($selectedVideo!.variations.find((v) => v.name == variationName)) {
+      variationName = "Audio " + i++;
     }
 
     $selectedVideo!.variations.push({
