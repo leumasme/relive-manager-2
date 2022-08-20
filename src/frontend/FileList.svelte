@@ -33,12 +33,10 @@
 </style>
 
 <script lang="ts">
-  export let videoPath = "Y:/ReLive Videos/Videos";
-
   import { parse } from "path";
-  import { db } from "./database";
+  import { db, videoPath } from "./database";
   import chokidar from "chokidar";
-  import { selectedVideo } from "./stores";
+  import { selectedVideo, selectedVariation } from "./stores";
 
   let fileProm = new Promise<void>((resolve) => {
     chokidar
@@ -81,7 +79,8 @@
         on:click="{() => {
           video.seen = true;
           video = video;
-          selectedVideo.set(video);
+          $selectedVariation = null;
+          $selectedVideo = video;
         }}"
       >
         {video.name}

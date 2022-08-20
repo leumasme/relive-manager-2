@@ -108,7 +108,7 @@
       {/each}
     </div>
   </div>
-  <select multiple style="width:100%">
+  <select multiple>
     {#each $selectedVideo.tags as tag}
       <option>{tag.name}</option>
     {/each}

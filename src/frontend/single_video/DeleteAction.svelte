@@ -1,8 +1,11 @@
 <script lang="ts">
   import type { SvelteComponent } from "svelte";
   import type { Writable } from "svelte/store";
-  import { selectedVideo } from "../stores";
+  import { selectedVideo, selectedVariation } from "../stores";
   export let activeAction: Writable<SvelteComponent | false>;
+  let targetName = $selectedVariation?.name ?? $selectedVideo!.name;
+
+  // TODO: Implement deletion when no longer indev
 
   function deleteYes() {
     console.log("Deleted video", $selectedVideo);
@@ -14,6 +17,6 @@
   }
 </script>
 
-<h3>Are you sure you want to delete <i style="color: #aaa">{$selectedVideo?.name}</i>?</h3>
+<h3>Are you sure you want to delete <i style="color: #aaa">{targetName}</i>?</h3>
 <button on:click="{deleteYes}">Yes</button>
 <button on:click="{deleteNo}">No</button>

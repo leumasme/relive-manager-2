@@ -7,16 +7,18 @@ export type Action = {
   args?: any[],
 }
 
+export type Variation = {
+  path: string,
+  name: string,
+  actions: Action[]
+}
+
 export type Video = {
   path: string,
   name: string,
   seen: boolean,
   tags: Tag[],
-  variations: {
-    filename: string,
-    name: string,
-    actions: Action[]
-  }[]
+  variations: Variation[]
 };
 
 export type DatabaseRoot = {
@@ -63,3 +65,6 @@ export function tagForName(name: string): Tag {
   db.tags.push(newTag);
   return newTag;
 }
+
+export let videoPath = "Y:/ReLive Videos/Videos";
+export let variationPath = "C:/Users/Temm/Videos/Replay Variations";

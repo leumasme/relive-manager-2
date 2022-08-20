@@ -10,6 +10,7 @@ export function runFFmpegCommand(args: string[]): AsyncIterable<[string, string]
 
   // On STDOUT, resolve if already waiting, otherwise push data to buffer
   function onMessage(source: string, msg: string) {
+    console.log("[FFMPEG]", source, msg);
     if (waiter != null) {
       waiter({ value: [source, msg.toString()], done: false });
       waiter = null;
