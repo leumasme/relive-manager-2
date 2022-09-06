@@ -39,7 +39,7 @@
   import { selectedVideo, selectedVariation } from "./stores";
 
   let fileProm = new Promise<void>((resolve) => {
-    chokidar
+    let watcher = chokidar
       .watch(videoPath, {
         awaitWriteFinish: true,
         ignored: (p) => {
@@ -62,7 +62,10 @@
         console.log("New File: ", path);
       })
       .on("ready", () => {
-        console.log("Ready");
+        if (Object.keys(watcher.getWatched()).length == 0) {
+          console.warn("Replay Directory does not exist");
+        }
+        console.log("Filesystem Watcher Ready");
         resolve();
       });
   });
