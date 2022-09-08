@@ -27,6 +27,8 @@ export type DatabaseRoot = {
   startCount: number;
 };
 
+let proxies = new WeakMap<any, any>();
+const isProxy = Symbol("isProxy");
 function createProxy(obj: any): any {
   return new Proxy(obj, {
     set: (target, prop, value) => {
@@ -35,8 +37,15 @@ function createProxy(obj: any): any {
       return true;
     },
     get: (target, prop) => {
+      if (prop == isProxy) return true;
       if (typeof target[prop] == "object") {
-        return createProxy(target[prop]);
+        if (target[prop][isProxy]) return target[prop];
+        if (!proxies.has(target[prop])) {
+          let proxy = createProxy(target[prop]);
+          proxies.set(target[prop], proxy);
+          return proxy
+        }
+        return proxies.get(target[prop]);
       } else return target[prop];
     },
   });
@@ -48,19 +57,18 @@ function saveStorage() {
     saveId = setImmediate(() => {
       saveId = null;
       console.log("Saving");
-      localStorage.setItem("database", JSON.stringify(db));
+      localStorage.setItem("database", JSON.stringify(realDb));
     });
 }
 
-export const db: DatabaseRoot = createProxy(
-  localStorage.getItem("database")
-    ? JSON.parse(localStorage.getItem("database")!)
-    : {
-      videos: [],
-      tags: [],
-      startCount: 0,
-    }
-);
+const realDb = localStorage.getItem("database")
+  ? JSON.parse(localStorage.getItem("database")!)
+  : {
+    videos: [],
+    tags: [],
+    startCount: 0,
+  };
+export const db: DatabaseRoot = createProxy(realDb);
 
 export function tagForName(name: string): Tag {
   // if tag exists, return it. else add a tag and return it
