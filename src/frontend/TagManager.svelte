@@ -52,10 +52,10 @@
 
 <script lang="ts">
   import { db, tagForName } from "./database";
-  import { selectedVideo } from "./stores";
+  import { selectedVideos } from "./stores";
 
   function videoHasTag(name: string) {
-    return $selectedVideo!.tags.some((t) => t.name == tagForName(name).name);
+    return $selectedVideos[0].tags.some((t) => t.name == tagForName(name).name);
   }
 
   function addTag(ev: KeyboardEvent) {
@@ -75,8 +75,8 @@
 
     if (videoHasTag(tag.name)) return;
 
-    $selectedVideo!.tags.push(tag);
-    $selectedVideo = $selectedVideo;
+    $selectedVideos[0].tags.push(tag);
+    $selectedVideos = $selectedVideos;
     elem.value = "";
     input = "";
 
@@ -94,12 +94,12 @@
     let tag = tagForName(evt.currentTarget.innerHTML);
     if (videoHasTag(tag.name)) return;
 
-    $selectedVideo!.tags.push(tag);
-    $selectedVideo = $selectedVideo;
+    $selectedVideos[0].tags.push(tag);
+    $selectedVideos = $selectedVideos;
   };
 </script>
 
-{#if $selectedVideo}
+{#if $selectedVideos}
   <div class="autocomplete">
     <input bind:value="{input}" on:keydown="{addTag}" type="text" />
     <div class="autocomplete-items">
@@ -109,7 +109,7 @@
     </div>
   </div>
   <select multiple>
-    {#each $selectedVideo.tags as tag}
+    {#each $selectedVideos[0].tags as tag}
       <option>{tag.name}</option>
     {/each}
   </select>

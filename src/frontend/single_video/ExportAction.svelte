@@ -26,10 +26,10 @@
   import type { Writable } from "svelte/store";
   export let activeAction: Writable<SvelteComponent | false>;
   import { exec } from "child_process";
-  import { selectedVariation, selectedVideo } from "../stores";
+  import { selectedVariation, selectedVideos } from "../stores";
   import { BrowserWindow } from "@electron/remote";
 
-  let path = $selectedVariation?.path ?? $selectedVideo!.path;
+  let path = $selectedVariation?.path ?? $selectedVideos[0].path;
 
   function onDrag() {
     console.log("Dragging", path);

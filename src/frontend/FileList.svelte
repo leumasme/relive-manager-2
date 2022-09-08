@@ -30,13 +30,16 @@
   .unseen {
     background-color: #5e1515;
   }
+  .selected {
+    background-color: #aaaaaa;
+  }
 </style>
 
 <script lang="ts">
   import { parse } from "path";
-  import { db, videoPath } from "./database";
+  import { db, videoPath, type Video } from "./database";
   import chokidar from "chokidar";
-  import { selectedVideo, selectedVariation } from "./stores";
+  import { selectedVideos, selectedVariation } from "./stores";
 
   let fileProm = new Promise<void>((resolve) => {
     let watcher = chokidar
@@ -69,6 +72,22 @@
         resolve();
       });
   });
+
+  function handleVideoClick(evt: MouseEvent, video: Video) {
+    $selectedVariation = null;
+    if (evt.ctrlKey) {
+      console.log("Multi-Select, currently selecting ", $selectedVideos);
+      if ($selectedVideos.includes(video)) {
+        // remove video
+        $selectedVideos.splice($selectedVideos.indexOf(video), 1);
+      } else {
+        $selectedVideos.push(video);
+      }
+      $selectedVideos = $selectedVideos;
+    } else {
+      $selectedVideos = [video];
+    }
+  }
 </script>
 
 <div class="filelist">
@@ -79,11 +98,10 @@
       <div
         class="file"
         class:unseen="{!video.seen}"
-        on:click="{() => {
-          video.seen = true;
+        class:selected="{$selectedVideos.includes(video)}"
+        on:click="{(evt) => {
+          handleVideoClick(evt, video);
           video = video;
-          $selectedVariation = null;
-          $selectedVideo = video;
         }}"
       >
         {video.name}

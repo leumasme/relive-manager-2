@@ -24,12 +24,12 @@
 <script lang="ts">
   import SingleVideoActions from "./single_video/Actions.svelte";
   import VariationManager from "./single_video/VariationManager.svelte";
-  import { selectedVideo, selectedVariation } from "./stores";
+  import { selectedVideos, selectedVariation } from "./stores";
   import TagManager from "./TagManager.svelte";
   import { access } from "fs/promises";
   import { db } from "./database";
 
-  $: filePath = $selectedVariation?.path ?? $selectedVideo?.path;
+  $: filePath = $selectedVariation?.path ?? $selectedVideos[0]?.path;
 
   async function videoLoadFailed() {
     try {
@@ -38,15 +38,15 @@
       if ($selectedVariation?.path) {
         let del = confirm("The Variation file has been deleted. Do you want to remove it from the database?");
         if (del) {
-          $selectedVideo?.variations.splice($selectedVideo!.variations.indexOf($selectedVariation), 1);
+          $selectedVideos[0]?.variations.splice($selectedVideos[0].variations.indexOf($selectedVariation), 1);
           $selectedVariation = null;
-          $selectedVideo = $selectedVideo;
+          $selectedVideos = $selectedVideos;
         }
       } else {
         let del = confirm("The Video file has been deleted. Do you want to remove it from the database?");
         if (del) {
-          db.videos.splice(db.videos.indexOf($selectedVideo!), 1);
-          $selectedVideo = null;
+          db.videos.splice(db.videos.indexOf($selectedVideos[0]), 1);
+          $selectedVideos = [];
         }
       }
       return;
@@ -55,8 +55,8 @@
   }
 </script>
 
-{#if $selectedVideo}
-  {#key $selectedVideo.path}
+{#if $selectedVideos.length == 1}
+  {#key $selectedVideos[0].path}
     <!-- svelte-ignore a11y-media-has-caption -->
     <div class="container">
       <video controls width="100%" src="{filePath}" on:error="{videoLoadFailed}"></video>
@@ -71,6 +71,8 @@
       </div>
     </div>
   {/key}
+{:else if $selectedVideos.length > 1}
+  <div>Multiple Videos are selected!</div>
 {:else}
   <h1>Select a Video...</h1>
 {/if}

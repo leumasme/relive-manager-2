@@ -20,7 +20,7 @@
   import type { SvelteComponent } from "svelte";
   import type { Writable } from "svelte/store";
   import { extractAudio } from "../ffmpeg";
-  import { selectedVideo, selectedVariation } from "../stores";
+  import { selectedVideos, selectedVariation } from "../stores";
   import { generateVariationPath } from "../utils";
   import fs from "fs/promises";
   import { dirname } from "path";
@@ -36,7 +36,7 @@
     let path = dirname(fullPath);
 
     await fs.mkdir(path, { recursive: true });
-    let filePath = $selectedVariation?.path ?? $selectedVideo!.path;
+    let filePath = $selectedVariation?.path ?? $selectedVideos[0].path;
     let iter = extractAudio(filePath, fullPath);
 
     for await (let update of iter) {
@@ -58,16 +58,16 @@
 
     let variationName = "Audio";
     let i = 1;
-    while ($selectedVideo!.variations.find((v) => v.name == variationName)) {
+    while ($selectedVideos[0].variations.find((v) => v.name == variationName)) {
       variationName = "Audio " + i++;
     }
 
-    $selectedVideo!.variations.push({
+    $selectedVideos[0].variations.push({
       actions: [{ type: "extractAudio" }],
       name: variationName,
       path: fullPath,
     });
-    $selectedVideo = $selectedVideo;
+    $selectedVideos = $selectedVideos;
     console.log("Done extracting audio");
   })();
 

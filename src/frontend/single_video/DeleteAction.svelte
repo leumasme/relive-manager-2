@@ -1,14 +1,14 @@
 <script lang="ts">
   import type { SvelteComponent } from "svelte";
   import type { Writable } from "svelte/store";
-  import { selectedVideo, selectedVariation } from "../stores";
+  import { selectedVideos, selectedVariation } from "../stores";
   export let activeAction: Writable<SvelteComponent | false>;
-  let targetName = $selectedVariation?.name ?? $selectedVideo!.name;
+  let targetName = $selectedVariation?.name ?? $selectedVideos[0].name;
 
   // TODO: Implement deletion when no longer indev
 
   function deleteYes() {
-    console.log("Deleted video", $selectedVideo);
+    console.log("Deleted video", $selectedVideos);
     $activeAction = false;
   }
   function deleteNo() {

@@ -17,12 +17,12 @@
 </style>
 
 <script lang="ts">
-  import { selectedVariation, selectedVideo } from "../stores";
+  import { selectedVariation, selectedVideos } from "../stores";
   import fs from "fs/promises";
 
   type OnSelectHandler = svelte.JSX.ChangeEventHandler<HTMLSelectElement>;
   let onChange: OnSelectHandler = (evt) => {
-    $selectedVariation = $selectedVideo!.variations.find((v) => v.path == evt.currentTarget.value) ?? null;
+    $selectedVariation = $selectedVideos[0].variations.find((v) => v.path == evt.currentTarget.value) ?? null;
     console.log("Selected Variation", $selectedVariation);
   };
 
@@ -33,7 +33,7 @@
       try {
         await fs.unlink(target.value);
         if ($selectedVariation?.path == target.value) $selectedVariation = null;
-        $selectedVideo!.variations = $selectedVideo!.variations.filter((t) => t.path != target.value);
+        $selectedVideos[0].variations = $selectedVideos[0].variations.filter((t) => t.path != target.value);
       } catch (e) {
         alert("Failed to delete variation file! " + JSON.stringify(e));
       }
@@ -41,10 +41,10 @@
   };
 </script>
 
-{#if $selectedVideo}
+{#if $selectedVideos}
   <select size="3" on:change="{onChange}" on:keydown="{onKeydown}">
     <option value="">Original</option>
-    {#each $selectedVideo.variations as variation}
+    {#each $selectedVideos[0].variations as variation}
       <option value="{variation.path}">{variation.name}</option>
     {/each}
   </select>
