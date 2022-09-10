@@ -1,4 +1,18 @@
 <style>
+  .all {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .search,
+  .search > input {
+    width: 100%;
+    margin-bottom: 0px;
+    background-color: rgb(60, 60, 60);
+    color: rgb(204, 204, 204);
+    border: none;
+  }
   .filelist {
     width: 100%;
     height: 100%;
@@ -31,7 +45,7 @@
     background-color: #5e1515;
   }
   .selected {
-    background-color: #aaaaaa;
+    background-color: #888888;
   }
 </style>
 
@@ -76,36 +90,44 @@
   function handleVideoClick(evt: MouseEvent, video: Video) {
     $selectedVariation = null;
     if (evt.ctrlKey) {
-      console.log("Multi-Select, currently selecting ", $selectedVideos);
       if ($selectedVideos.includes(video)) {
         // remove video
         $selectedVideos.splice($selectedVideos.indexOf(video), 1);
       } else {
         $selectedVideos.push(video);
       }
+      console.log("Multi-Selecting videos, currently", $selectedVideos.length);
       $selectedVideos = $selectedVideos;
     } else {
       $selectedVideos = [video];
     }
   }
+
+  let searchstr = "";
+  $: shownVideos = db.videos.filter(v=> v.name.includes(searchstr));
 </script>
 
-<div class="filelist">
-  {#await fileProm}
-    Loading Files...
-  {:then}
-    {#each db.videos as video}
-      <div
-        class="file"
-        class:unseen="{!video.seen}"
-        class:selected="{$selectedVideos.includes(video)}"
-        on:click="{(evt) => {
-          handleVideoClick(evt, video);
-          video = video;
-        }}"
-      >
-        {video.name}
-      </div>
-    {/each}
-  {/await}
+<div class="all">
+  <div class="search">
+    <input type="text" bind:value="{searchstr}" placeholder="Search" />
+  </div>
+  <div class="filelist">
+    {#await fileProm}
+      Loading Files...
+    {:then}
+      {#each (searchstr.length == 0 ? db.videos : shownVideos) as video}
+        <div
+          class="file"
+          class:unseen="{!video.seen}"
+          class:selected="{$selectedVideos.includes(video)}"
+          on:click="{(evt) => {
+            handleVideoClick(evt, video);
+            video = video;
+          }}"
+        >
+          {video.name}
+        </div>
+      {/each}
+    {/await}
+  </div>
 </div>
