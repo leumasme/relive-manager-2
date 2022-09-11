@@ -87,6 +87,10 @@
       });
   });
 
+  function onlyUniqueFilter<T>(value: T, index: number, self: T[]) {
+    return self.indexOf(value) === index;
+  }
+
   function handleVideoClick(evt: MouseEvent, video: Video) {
     $selectedVariation = null;
     if (evt.ctrlKey) {
@@ -98,14 +102,37 @@
       }
       console.log("Multi-Selecting videos, currently", $selectedVideos.length);
       $selectedVideos = $selectedVideos;
+    } else if (evt.shiftKey) {
+      // select all videos between the last selected video and the current one
+      // TODO: this will have to be reworked when we add sorting
+      let lastSelected = $selectedVideos[$selectedVideos.length - 1];
+      if (lastSelected) {
+        let lastSelectedIndex = db.videos.indexOf(lastSelected);
+        let currentIndex = db.videos.indexOf(video);
+        let start = Math.min(lastSelectedIndex, currentIndex);
+        let end = Math.max(lastSelectedIndex, currentIndex);
+        let newlySelected = db.videos.slice(start, end + 1);
+        // $selectedVideos will have to merged with newlySelected and deduped
+        $selectedVideos = $selectedVideos.concat(newlySelected).filter(onlyUniqueFilter);
+      } else {
+        $selectedVideos = [video];
+      }
     } else {
       $selectedVideos = [video];
       video.seen = true;
     }
   }
+  function handleMouseEnter(evt: MouseEvent, video: Video) {
+    if (evt.buttons == 1) {
+      if (!$selectedVideos.includes(video)) {
+        $selectedVideos.push(video);
+        $selectedVideos = $selectedVideos;
+      }
+    }
+  }
 
   let searchstr = "";
-  $: shownVideos = db.videos.filter(v=> v.name.includes(searchstr));
+  $: shownVideos = db.videos.filter((v) => v.name.toLocaleLowerCase().includes(searchstr.toLocaleLowerCase()));
 </script>
 
 <div class="all">
@@ -116,7 +143,7 @@
     {#await fileProm}
       Loading Files...
     {:then}
-      {#each (searchstr.length == 0 ? db.videos : shownVideos) as video}
+      {#each searchstr.length == 0 ? db.videos : shownVideos as video}
         <div
           class="file"
           class:unseen="{!video.seen}"
@@ -124,6 +151,9 @@
           on:click="{(evt) => {
             handleVideoClick(evt, video);
             video = video;
+          }}"
+          on:mouseenter="{(evt) => {
+            handleMouseEnter(evt, video);
           }}"
         >
           {video.name}
