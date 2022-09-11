@@ -100,6 +100,7 @@
       $selectedVideos = $selectedVideos;
     } else {
       $selectedVideos = [video];
+      video.seen = true;
     }
   }
 
