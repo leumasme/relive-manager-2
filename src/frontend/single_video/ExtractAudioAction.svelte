@@ -72,6 +72,7 @@
   })();
 
   function cancel() {
+    // todo: implement real cancelling
     $activeAction = false;
   }
   function done() {

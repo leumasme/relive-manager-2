@@ -2,6 +2,7 @@ import { spawn } from "child_process";
 import { parseDuration } from "./utils";
 
 export function runFFmpegCommand(args: string[]): AsyncIterable<[string, string]> {
+  console.log("Running ffmpeg command:", "ffmpeg " + args.join(" "))
   let process = spawn("ffmpeg", args);
 
   let buffer: ([string, string] | null)[] = [];
@@ -102,8 +103,8 @@ export type Progress = {
   progressPercent: number;
   eta: number;
 };
-export async function* extractAudio(from: string, to: string) {
-  let output = runFFmpegCommand(["-i", from, "-q:a", "0", "-map", "a", to, "-y", "-progress", "pipe:1"]);
+export async function* extractAudio(src: string, dst: string) {
+  let output = runFFmpegCommand(["-i", src, "-q:a", "0", "-map", "a", dst, "-y", "-progress", "pipe:1"]);
   // let startTime = Date.now();
   let duration: number | null = null;
   for await (let update of output) {
@@ -122,6 +123,32 @@ export async function* extractAudio(from: string, to: string) {
         duration = parseDuration(matches[1]);
         console.log("Found duration:", duration);
       }
+    }
+  }
+}
+/** Start and End as numbers of seconds, including fractions of a second */
+export async function* trimAny(src: string, dst: string, start: number, end: number) {
+  let output = runFFmpegCommand([
+    "-i", src,
+    "-ss", start.toString(),
+    "-to", end.toString(),
+    "-c:v", "copy",
+    "-c:a", "copy",
+    dst,
+    "-y",
+    "-progress", "pipe:1"
+  ]);
+  let duration = end - start;
+  for await (let update of output) {
+    if (update[0] == "stdout") {
+      let data = parseFFmpegProgress(update[1]);
+      yield {
+        progress: data.processed_time,
+        speed: data.speed,
+        total: duration,
+        progressPercent: (data.processed_time / (duration ?? 0)) * 100,
+        eta: ((duration ?? 0) - data.processed_time) / data.speed,
+      };
     }
   }
 }

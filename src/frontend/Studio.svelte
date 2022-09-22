@@ -36,7 +36,10 @@
     object-fit: contain;
   }
 </style>
-
+<script lang="ts" context="module">
+  import { writable } from "svelte/store";
+  export let videoElem = writable<HTMLVideoElement | null>(null);
+</script>
 <script lang="ts">
   import SingleVideoActions from "./single_video/Actions.svelte";
   import MultiVideoActions from "./multi_video/Actions.svelte";
@@ -77,7 +80,7 @@
     <!-- svelte-ignore a11y-media-has-caption -->
     <div class="container">
       <div class="wrap vid aspect">
-        <video controls width="100%" src="{filePath}" on:error="{videoLoadFailed}"></video>
+        <video controls width="100%" src="{filePath}" on:error="{videoLoadFailed}" bind:this={$videoElem}></video>
       </div>
       <div class="wrap">
         <TagManager />
