@@ -13,15 +13,16 @@
   import type { Writable } from "svelte/store";
   import { selectedVideos, selectedVariation } from "../stores";
   export let activeAction: Writable<SvelteComponent | false>;
-  import { videoElem } from "../Studio.svelte";
+  import { videoElem } from "../stores";
   import { generateVariationPath } from "../utils";
   import { dirname } from "path";
   import fs from "fs/promises";
   import { trimAny } from "../ffmpeg";
+  import LoadingBar from "../LoadingBar.svelte";
   // let targetName = $selectedVariation?.name ?? $selectedVideos[0].name;
 
   function round(time: number) {
-    return Math.round(time*100)/100;
+    return Math.round(time * 100) / 100;
   }
 
   let start = 0,
@@ -49,10 +50,10 @@
 
     let fullPath = generateVariationPath("mp4");
     let path = dirname(fullPath);
-    
+
+    started = true;
     await fs.mkdir(path, { recursive: true });
     let filePath = $selectedVariation?.path ?? $selectedVideos[0].path;
-    started = true;
     let iter = trimAny(filePath, fullPath, start, end);
 
     for await (let update of iter) {
@@ -86,7 +87,7 @@
     $selectedVideos = $selectedVideos;
     console.log("Done trimming video");
   }
-  function back() {
+  function done() {
     $activeAction = false;
   }
 </script>
@@ -123,21 +124,10 @@
   <button on:click="{executeTrim}">Trim</button>
   <button on:click="{() => ($activeAction = false)}">Cancel</button>
 {:else}
-  <div class="wrapper">
-    <div class="loadwrapper">
-      <div class="loadinner" style="width: {progress}%"></div>
-    </div>
-    <div class="loadtext">
-      {#if complete}
-        {#if failed}
-          <p>Trimming failed</p>
-        {:else}
-          <p>Trimming complete</p>
-        {/if}
-        <button on:click="{back}">Back</button>
-      {:else}
-        <p>Trimming...</p>
-      {/if}
-    </div>
+  <div>
+    <LoadingBar progress="{progress}" failed="{failed}" />
+    {#if complete}
+      <button on:click="{done}">Done</button>
+    {/if}
   </div>
 {/if}
