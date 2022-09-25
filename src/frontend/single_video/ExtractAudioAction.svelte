@@ -2,18 +2,6 @@
   .wrapper {
     padding: 16px;
   }
-  .loadwrapper {
-    display: flex;
-    background-color: gray;
-    margin-bottom: 16px;
-  }
-  .loadinner {
-    background-color: green;
-    height: 25px;
-  }
-  .failed {
-    background-color: red;
-  }
 </style>
 
 <script lang="ts">
@@ -24,6 +12,7 @@
   import { generateVariationPath } from "../utils";
   import fs from "fs/promises";
   import { dirname } from "path";
+  import LoadingBar from "../LoadingBar.svelte";
 
   export let activeAction: Writable<SvelteComponent | false>;
 
@@ -71,21 +60,14 @@
     console.log("Done extracting audio");
   })();
 
-  function cancel() {
-    $activeAction = false;
-  }
   function done() {
     $activeAction = false;
   }
 </script>
 
 <div class="wrapper">
-  <div class="loadwrapper" style="background-color: gray;">
-    <div class="loadinner" class:failed style="width:{progress}%;"></div>
-  </div>
-  {#if !complete}
-    <button on:click="{cancel}">Cancel</button>
-  {:else}
+  <LoadingBar failed="{failed}" progress="{progress}" />
+  {#if complete}
     <button on:click="{done}">Done</button>
   {/if}
 </div>

@@ -26,7 +26,7 @@
     background-color: rgb(55, 55, 55);
     background-clip: content-box;
     justify-content: center;
-    color:rgb(127, 127, 127);
+    color: rgb(127, 127, 127);
   }
   .vid > video {
     /* background-color: rgb(55, 55, 55); */
@@ -41,7 +41,7 @@
   import SingleVideoActions from "./single_video/Actions.svelte";
   import MultiVideoActions from "./multi_video/Actions.svelte";
   import VariationManager from "./single_video/VariationManager.svelte";
-  import { selectedVideos, selectedVariation } from "./stores";
+  import { selectedVideos, selectedVariation, videoElem } from "./stores";
   import TagManager from "./TagManager.svelte";
   import { access } from "fs/promises";
   import { db } from "./database";
@@ -77,7 +77,7 @@
     <!-- svelte-ignore a11y-media-has-caption -->
     <div class="container">
       <div class="wrap vid aspect">
-        <video controls width="100%" src="{filePath}" on:error="{videoLoadFailed}"></video>
+        <video controls width="100%" src="{filePath}" on:error="{videoLoadFailed}" bind:this="{$videoElem}"></video>
       </div>
       <div class="wrap">
         <TagManager />
