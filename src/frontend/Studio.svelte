@@ -3,12 +3,14 @@
     margin-top: 0;
   }
   .container {
+    box-sizing: border-box;
     height: 100%;
     display: grid;
     overflow: none;
+    padding: 10px;
     grid-template-columns: 1fr 14em;
     grid-template-rows: max-content 1fr;
-    gap: 0px 0px;
+    gap: 10px 10px;
     grid-auto-flow: row;
     grid-template-areas:
       ". ."
@@ -17,7 +19,6 @@
   .wrap {
     display: flex;
     flex-direction: column;
-    padding: 10px;
   }
   .aspect {
     aspect-ratio: 16 / 9;
