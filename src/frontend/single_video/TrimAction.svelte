@@ -15,7 +15,7 @@
   export let activeAction: Writable<SvelteComponent | false>;
   import { videoElem } from "../stores";
   import { generateVariationPath } from "../utils";
-  import { dirname } from "path";
+  import { dirname, parse } from "path";
   import fs from "fs/promises";
   import { trimAny } from "../ffmpeg";
   import LoadingBar from "../LoadingBar.svelte";
@@ -48,13 +48,13 @@
   async function executeTrim() {
     console.log("Trimming video from " + start + " to " + end);
 
-    let fullPath = generateVariationPath("mp4");
-    let path = dirname(fullPath);
+    let originalPath = $selectedVariation?.path ?? $selectedVideos[0].path;
+    let newPath = generateVariationPath(parse(originalPath).ext.slice(1));
+    let path = dirname(newPath);
 
     started = true;
     await fs.mkdir(path, { recursive: true });
-    let filePath = $selectedVariation?.path ?? $selectedVideos[0].path;
-    let iter = trimAny(filePath, fullPath, start, end);
+    let iter = trimAny(originalPath, newPath, start, end);
 
     for await (let update of iter) {
       progress = update.progressPercent;
@@ -64,7 +64,7 @@
 
     // If the output file doesnt exist, the command failed
     failed = !(await fs
-      .access(fullPath)
+      .access(newPath)
       .then(() => true)
       .catch(() => false));
 
@@ -79,10 +79,12 @@
       variationName = "Trim " + i++;
     }
 
+    let previousActions = $selectedVariation?.actions ?? [];
+
     $selectedVideos[0].variations.push({
-      actions: [{ type: "trim", args: [start, end] }],
+      actions: [...previousActions, { type: "trim", args: [start, end] }],
       name: variationName,
-      path: fullPath,
+      path: newPath,
     });
     $selectedVideos = $selectedVideos;
     console.log("Done trimming video");

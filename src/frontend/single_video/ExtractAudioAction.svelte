@@ -51,8 +51,10 @@
       variationName = "Audio " + i++;
     }
 
+    let previousActions = $selectedVariation?.actions ?? [];
+
     $selectedVideos[0].variations.push({
-      actions: [{ type: "extractAudio" }],
+      actions: [...previousActions, { type: "extractAudio" }],
       name: variationName,
       path: fullPath,
     });

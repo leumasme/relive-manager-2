@@ -10,7 +10,7 @@ export type Action = {
 export type Variation = {
   path: string;
   name: string;
-  actions: Action[];
+  actions: Readonly<Action>[]; // Actions may be re-used as references, so they should be immutable
 };
 
 export type Video = {
