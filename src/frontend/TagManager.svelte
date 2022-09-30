@@ -58,6 +58,10 @@
     return $selectedVideos[0].tags.some((t) => t.name == tagForName(name).name);
   }
 
+  function generateSuggestions() {
+    suggestedTags = db.tags.filter((x) => x.name.includes(input) && !videoHasTag(x.name)).slice(0, 7);
+  }
+
   function addTag(ev: KeyboardEvent) {
     let elem = ev.target as HTMLInputElement;
 
@@ -80,7 +84,7 @@
     elem.value = "";
     input = "";
 
-    suggestedTags = db.tags.filter((x) => x.name.includes(input) && !videoHasTag(x.name)).slice(0, 7);
+    generateSuggestions();
   }
 
   // TODO: make suggestedTags properly reactive (use stores in db?)
@@ -96,6 +100,7 @@
 
     $selectedVideos[0].tags.push(tag);
     $selectedVideos = $selectedVideos;
+    generateSuggestions();
   };
 </script>
 
