@@ -131,8 +131,47 @@
     }
   }
 
+  function searchScoreVideo(video: Video, search: string): number {
+    search = search.toLocaleLowerCase();
+    let title = video.name.toLocaleLowerCase();
+    let score = 0;
+    if (title.startsWith(search)) {
+      score += 100;
+    } else if (title.split(" ").some((word) => word.startsWith(search))) {
+      score += 50;
+    } else if (title.includes(search)) {
+      score += 25;
+    }
+
+    if (video.tags.some((t) => t.name.toLocaleLowerCase().startsWith(search))) {
+      score += 20;
+    }
+    
+    if (video.seen) {
+      score -= 1;
+    }
+
+    return score;
+  }
+  // TODO: Does this need performance optimizations?
+  function searchVideos(videos: Video[], search: string) {
+    console.time("searchVideos");
+    let searchLower = search.toLowerCase();
+    let filtered = videos.filter((v) => v.name.toLowerCase().includes(searchLower))
+    .filter(v=>searchScoreVideo(v, search) > 0)
+    
+    // sort videos by how well they match the search in title and tags
+    let sorted = filtered.sort((a, b) => {
+      let aScore = searchScoreVideo(a, searchLower);
+      let bScore = searchScoreVideo(b, searchLower);
+      return bScore - aScore;
+    });
+    console.timeEnd("searchVideos");
+    return sorted;
+  }
+
   let searchstr = "";
-  $: shownVideos = db.videos.filter((v) => v.name.toLocaleLowerCase().includes(searchstr.toLocaleLowerCase()));
+  $: shownVideos = searchVideos(db.videos, searchstr);
 </script>
 
 <div class="all">
