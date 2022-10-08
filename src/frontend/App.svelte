@@ -17,11 +17,17 @@
     padding: 0;
     overflow: none;
   }
+  .flex {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
 </style>
 
 <script lang="ts">
   import { db } from "./database";
   import FileList from "./FileList.svelte";
+  import ModalList from "./ModalList.svelte";
   import SplitPane from "./SplitPane.svelte";
   import Studio from "./Studio.svelte";
 
@@ -31,8 +37,9 @@
 <main>
   <div class="wrapper">
     <SplitPane type="horizontal" min="{20}" max="{50}" pos="{20}">
-      <section slot="a" style="height:100%; background-color: #252526">
+      <section class="flex" slot="a" style="height:100%; background-color: #252526">
         <FileList />
+        <ModalList />
       </section>
       <section slot="b" style="height: 100%; background-color: #1E1E1E">
         <Studio />
