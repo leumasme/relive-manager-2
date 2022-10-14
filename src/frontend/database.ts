@@ -61,13 +61,20 @@ function saveStorage() {
     });
 }
 
-const realDb = localStorage.getItem("database")
-  ? JSON.parse(localStorage.getItem("database")!)
-  : {
-    videos: [],
-    tags: [],
-    startCount: 0,
-  };
+function getStorageOrDefault(key: string, fallback: string) {
+  let item = localStorage.getItem(key);
+  if (item == null) {
+    localStorage.setItem(key, fallback);
+    return fallback;
+  }
+  return item;
+}
+
+const realDb: DatabaseRoot = JSON.parse(getStorageOrDefault("database", JSON.stringify({
+  videos: [],
+  tags: [],
+  startCount: 0,
+})));
 export const db: DatabaseRoot = createProxy(realDb);
 
 export function tagForName(name: string): Tag {
@@ -79,5 +86,5 @@ export function tagForName(name: string): Tag {
   return newTag;
 }
 
-export let videoPath = "Y:/ReLive Videos/Videos";
-export let variationPath = "C:/Users/Temm/Videos/Replay Variations";
+export let videoPath = getStorageOrDefault("videoPath", "Y:/ReLive Videos/Videos");
+export let variationPath = getStorageOrDefault("variationPath", "C:/Users/Temm/Videos/Replay Variations");

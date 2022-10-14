@@ -1,1 +1,0 @@
-<div>Hello, i'm settings!</div>

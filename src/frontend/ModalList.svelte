@@ -9,8 +9,8 @@
 
 <script lang="ts">
   import type { SvelteComponent } from "svelte";
-  import Modal from "./Modal.svelte";
-  import SettingsModal from "./SettingsModal.svelte";
+  import Modal from "./modals/Modal.svelte";
+  import SettingsModal from "./modals/SettingsModal.svelte";
 
   let bla: typeof SvelteComponent;
   function settingsClick() {
