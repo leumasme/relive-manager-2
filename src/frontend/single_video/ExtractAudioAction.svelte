@@ -19,16 +19,22 @@
   let progress: number = 0;
   let complete = false;
   let failed = false;
+  let canceled = false;
+  let iter : ReturnType<typeof extractAudio> | null = null;
   (async () => {
     console.log("Extracting audio...");
     let fullPath = generateVariationPath("mp3");
     let path = dirname(fullPath);
 
     await fs.mkdir(path, { recursive: true });
+
+    if (canceled) return;
+
     let filePath = $selectedVariation?.path ?? $selectedVideos[0].path;
-    let iter = extractAudio(filePath, fullPath);
+    iter = extractAudio(filePath, fullPath);
 
     for await (let update of iter) {
+      console.warn(update);
       progress = update.progressPercent;
     }
     progress = 100;
@@ -42,6 +48,10 @@
 
     if (failed) {
       console.log("Failed to extract audio!");
+      return;
+    }
+    if (canceled) {
+      await fs.unlink(fullPath);
       return;
     }
 
@@ -65,11 +75,18 @@
   function done() {
     $activeAction = false;
   }
+  function cancel() {
+    iter?.cancel();
+    canceled = true;
+    done();
+  }
 </script>
 
 <div class="wrapper">
   <LoadingBar failed="{failed}" progress="{progress}" />
   {#if complete}
     <button on:click="{done}">Done</button>
+  {:else}
+    <button on:click="{cancel}">Cancel</button>
   {/if}
 </div>
