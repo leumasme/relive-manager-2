@@ -45,6 +45,8 @@
   let complete = false;
   let started = false;
   let failed = false;
+  let canceled = false;
+  let iter : ReturnType<typeof extractAudio> | null = null;
   async function executeTrim() {
     console.log("Trimming video from " + start + " to " + end);
 
@@ -54,7 +56,10 @@
 
     started = true;
     await fs.mkdir(path, { recursive: true });
-    let iter = trimAny(originalPath, newPath, start, end);
+
+    if (canceled) return;
+
+    iter = trimAny(originalPath, newPath, start, end);
 
     for await (let update of iter) {
       progress = update.progressPercent;
@@ -70,6 +75,10 @@
 
     if (failed) {
       alert("Failed to trim video!");
+      return;
+    }
+    if (canceled) {
+      await fs.unlink(newPath);
       return;
     }
 
@@ -90,6 +99,11 @@
     console.log("Done trimming video");
   }
   function done() {
+    $activeAction = false;
+  }
+  function cancel() {
+    iter?.cancel();
+    canceled = true;
     $activeAction = false;
   }
 </script>
@@ -130,6 +144,8 @@
     <LoadingBar progress="{progress}" failed="{failed}" />
     {#if complete}
       <button on:click="{done}">Done</button>
+    {:else}
+      <button on:click="{cancel}">Cancel</button>
     {/if}
   </div>
 {/if}

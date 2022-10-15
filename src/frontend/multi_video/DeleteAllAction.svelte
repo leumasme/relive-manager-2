@@ -11,7 +11,7 @@
     $activeAction = false;
   }
   function deleteNo() {
-    console.log("Cancelled deletion");
+    console.log("Canceled deletion");
     $activeAction = false;
   }
 </script>

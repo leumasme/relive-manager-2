@@ -1,11 +1,16 @@
 import { spawn } from "child_process";
 import { parseDuration } from "./utils";
 
-export function runFFmpegCommand(args: string[]): AsyncIterable<[string, string]> {
+interface CancelableAsyncIterableIterator<T> extends AsyncIterableIterator<T> {
+  canceled: boolean,
+  cancel: () => void;
+}
+
+function runFFmpegCommandRaw(args: string[]): CancelableAsyncIterableIterator<[string, string]> {
   console.log("Running ffmpeg command:", "ffmpeg " + args.join(" "))
   let process = spawn("ffmpeg", args);
 
-  let buffer: ([string, string] | null)[] = [];
+  let buffer: ([string, string])[] = [];
   type ResolveFunc = (
     value: IteratorResult<[string, string], any> | PromiseLike<IteratorResult<[string, string], any>>
   ) => void;
@@ -37,34 +42,37 @@ export function runFFmpegCommand(args: string[]): AsyncIterable<[string, string]
       waiter = null;
       return;
     }
-    buffer.push(null);
   });
 
   return {
+    canceled: false,
+    cancel() {
+      process.kill();
+      this.canceled = true;
+    },
     [Symbol.asyncIterator]() {
-      return {
-        next: () => {
-          return new Promise((resolve, reject) => {
-            if (waiter != null) {
-              // If already waiting, fail as we cant support multiple waiting at the same time
-              reject(new Error("Async Iterator already in use"));
-            } else if (buffer.length != 0) {
-              // If we have data already stored up, we can resolve with that
-              let val = buffer.shift();
+      return this;
+    },
+    next: () => {
+      return new Promise((resolve, reject) => {
+        if (waiter != null) {
+          // If already waiting, fail as we cant support multiple waiting at the same time
+          reject(new Error("Async Iterator already in use"));
+        } else if (buffer.length != 0) {
+          // If we have data already stored up, we can resolve with that
+          let val = buffer.shift()!;
+          resolve({ value: val, done: false });
+        } else {
+          if (process.exitCode != null) {
+            // If the process has already exited, we can resolve with done
+            resolve({ value: undefined, done: true });
+            return
+          }
 
-              // typescript type checking isnt great here, thus separating the 2 possible resolves
-              if (val == undefined) {
-                resolve({ value: undefined, done: true });
-              } else {
-                resolve({ value: val, done: false });
-              }
-            } else {
-              // No data is stored up, set to waiting and resolve in the process events
-              waiter = resolve;
-            }
-          });
-        },
-      };
+          // No data is stored up, set to waiting and resolve in the process events
+          waiter = resolve;
+        }
+      });
     },
   };
 }
@@ -103,31 +111,57 @@ export type Progress = {
   progressPercent: number;
   eta: number;
 };
-export async function* extractAudio(src: string, dst: string) {
-  let output = runFFmpegCommand(["-i", src, "-q:a", "0", "-map", "a", dst, "-y", "-progress", "pipe:1"]);
-  // let startTime = Date.now();
-  let duration: number | null = null;
-  for await (let update of output) {
-    if (update[0] == "stdout") {
-      let data = parseFFmpegProgress(update[1]);
-      yield {
-        progress: data.processed_time,
-        speed: data.speed,
-        total: duration,
-        progressPercent: (data.processed_time / (duration ?? 0)) * 100,
-        eta: ((duration ?? 0) - data.processed_time) / data.speed,
-      };
-    } else if (duration == null) {
-      let matches = update[1].match(/Duration: +([0-9]+:[0-9]+:[0-9.]+)/);
-      if (matches != null) {
-        duration = parseDuration(matches[1]);
-        console.log("Found duration:", duration);
+
+// This only works if the output length is the same as the input length
+export function runFFmpegCommand(args: string[]): CancelableAsyncIterableIterator<Progress> {
+  let output = runFFmpegCommandRaw(args);
+
+  // We cant directly extend the IterableIterator that the generator function returns from within it,
+  // so we have to create a separate generator function with our functionality inside a wrapper, call it
+  // to get the IterableIterator and extend it that way.
+  return Object.assign((async function* () {
+    let duration: number | null = null;
+    for await (let update of output) {
+      if (update[0] == "stdout") {
+        let data = parseFFmpegProgress(update[1]);
+        yield {
+          progress: data.processed_time,
+          speed: data.speed,
+          total: duration!,
+          progressPercent: (data.processed_time / (duration ?? 0)) * 100,
+          eta: ((duration ?? 0) - data.processed_time) / data.speed,
+        };
+      } else if (duration == null) {
+        let matches = update[1].match(/Duration: +([0-9]+:[0-9]+:[0-9.]+)/);
+        if (matches != null) {
+          duration = parseDuration(matches[1]);
+          console.log("Found duration:", duration);
+        }
       }
     }
-  }
+  })(), {
+    canceled: false,
+    cancel() {
+      output.cancel();
+      this.canceled = true;
+    }
+  });
+}
+
+export function extractAudio(src: string, dst: string): CancelableAsyncIterableIterator<Progress> {
+  let output = runFFmpegCommand(["-i", src, "-q:a", "0", "-map", "a", dst, "-y", "-progress", "pipe:1"]);
+  return Object.assign((async function* () {
+    yield* output;
+  })(), {
+    canceled: false,
+    cancel() {
+      output.cancel();
+      this.canceled = true;
+    },
+  })
 }
 /** Start and End as numbers of seconds, including fractions of a second */
-export async function* trimAny(src: string, dst: string, start: number, end: number) {
+export function trimAny(src: string, dst: string, start: number, end: number): CancelableAsyncIterableIterator<Progress> {
   let output = runFFmpegCommand([
     "-i", src,
     "-ss", start.toString(),
@@ -138,17 +172,22 @@ export async function* trimAny(src: string, dst: string, start: number, end: num
     "-y",
     "-progress", "pipe:1"
   ]);
-  let duration = end - start;
-  for await (let update of output) {
-    if (update[0] == "stdout") {
-      let data = parseFFmpegProgress(update[1]);
+
+  return Object.assign((async function* () {
+    let duration = end - start;
+    for await (let update of output) {
       yield {
-        progress: data.processed_time,
-        speed: data.speed,
+        ...update,
         total: duration,
-        progressPercent: (data.processed_time / (duration ?? 0)) * 100,
-        eta: ((duration ?? 0) - data.processed_time) / data.speed,
-      };
+        progressPercent: (update.progress / (duration ?? 0)) * 100,
+        eta: ((duration ?? 0) - update.progress) / update.speed,
+      }
     }
-  }
+  })(), {
+    canceled: false,
+    cancel() {
+      output.cancel();
+      this.canceled = true;
+    },
+  })
 }
