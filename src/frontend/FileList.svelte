@@ -1,24 +1,24 @@
 <style>
-  .all {
-    width: 100%;
-    height: 100%;
+  .wrapper {
+    flex-grow: 1;
+    min-height: 0;
     display: flex;
     flex-direction: column;
   }
-  .search,
-  .search > input {
-    width: 100%;
+  .search {
     margin-bottom: 0px;
     background-color: rgb(60, 60, 60);
     color: rgb(204, 204, 204);
     border: none;
   }
+  .search:focus-visible {
+    outline: none;
+  }
   .filelist {
-    width: 100%;
-    height: 100%;
+    flex-grow: 1;
     overflow-x: hidden;
-    /* thinner scrollbar + darkmode for chrome */
-    overflow: overlay;
+    /* scrollbar shouldnt take up space. deprecated but no alternative :) */
+    overflow-y: overlay;
     padding-right: 0px;
   }
   .filelist::-webkit-scrollbar {
@@ -146,7 +146,7 @@
     if (video.tags.some((t) => t.name.toLocaleLowerCase().startsWith(search))) {
       score += 20;
     }
-    
+
     if (video.seen) {
       score -= 1;
     }
@@ -157,9 +157,10 @@
   function searchVideos(videos: Video[], search: string) {
     console.time("searchVideos");
     let searchLower = search.toLowerCase();
-    let filtered = videos.filter((v) => v.name.toLowerCase().includes(searchLower))
-    .filter(v=>searchScoreVideo(v, search) > 0)
-    
+    let filtered = videos
+      .filter((v) => v.name.toLowerCase().includes(searchLower))
+      .filter((v) => searchScoreVideo(v, search) > 0);
+
     // sort videos by how well they match the search in title and tags
     let sorted = filtered.sort((a, b) => {
       let aScore = searchScoreVideo(a, searchLower);
@@ -174,10 +175,8 @@
   $: shownVideos = searchVideos(db.videos, searchstr);
 </script>
 
-<div class="all">
-  <div class="search">
-    <input type="text" bind:value="{searchstr}" placeholder="Search" />
-  </div>
+<div class="wrapper">
+  <input class="search" type="text" bind:value="{searchstr}" placeholder="Search" />
   <div class="filelist">
     {#await fileProm}
       Loading Files...
