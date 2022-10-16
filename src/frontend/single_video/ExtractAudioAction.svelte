@@ -20,7 +20,7 @@
   let complete = false;
   let failed = false;
   let canceled = false;
-  let iter : ReturnType<typeof extractAudio> | null = null;
+  let iter: ReturnType<typeof extractAudio> | null = null;
   (async () => {
     console.log("Extracting audio...");
     let fullPath = generateVariationPath("mp3");

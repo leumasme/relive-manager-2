@@ -2,15 +2,15 @@ import { spawn } from "child_process";
 import { parseDuration } from "./utils";
 
 interface CancelableAsyncIterableIterator<T> extends AsyncIterableIterator<T> {
-  canceled: boolean,
+  canceled: boolean;
   cancel: () => void;
 }
 
 function runFFmpegCommandRaw(args: string[]): CancelableAsyncIterableIterator<[string, string]> {
-  console.log("Running ffmpeg command:", "ffmpeg " + args.join(" "))
+  console.log("Running ffmpeg command:", "ffmpeg " + args.join(" "));
   let process = spawn("ffmpeg", args);
 
-  let buffer: ([string, string])[] = [];
+  let buffer: [string, string][] = [];
   type ResolveFunc = (
     value: IteratorResult<[string, string], any> | PromiseLike<IteratorResult<[string, string], any>>
   ) => void;
@@ -66,7 +66,7 @@ function runFFmpegCommandRaw(args: string[]): CancelableAsyncIterableIterator<[s
           if (process.exitCode != null) {
             // If the process has already exited, we can resolve with done
             resolve({ value: undefined, done: true });
-            return
+            return;
           }
 
           // No data is stored up, set to waiting and resolve in the process events
@@ -119,75 +119,95 @@ export function runFFmpegCommand(args: string[]): CancelableAsyncIterableIterato
   // We cant directly extend the IterableIterator that the generator function returns from within it,
   // so we have to create a separate generator function with our functionality inside a wrapper, call it
   // to get the IterableIterator and extend it that way.
-  return Object.assign((async function* () {
-    let duration: number | null = null;
-    for await (let update of output) {
-      if (update[0] == "stdout") {
-        let data = parseFFmpegProgress(update[1]);
-        yield {
-          progress: data.processed_time,
-          speed: data.speed,
-          total: duration!,
-          progressPercent: (data.processed_time / (duration ?? 0)) * 100,
-          eta: ((duration ?? 0) - data.processed_time) / data.speed,
-        };
-      } else if (duration == null) {
-        let matches = update[1].match(/Duration: +([0-9]+:[0-9]+:[0-9.]+)/);
-        if (matches != null) {
-          duration = parseDuration(matches[1]);
-          console.log("Found duration:", duration);
+  return Object.assign(
+    (async function* () {
+      let duration: number | null = null;
+      for await (let update of output) {
+        if (update[0] == "stdout") {
+          let data = parseFFmpegProgress(update[1]);
+          yield {
+            progress: data.processed_time,
+            speed: data.speed,
+            total: duration!,
+            progressPercent: (data.processed_time / (duration ?? 0)) * 100,
+            eta: ((duration ?? 0) - data.processed_time) / data.speed,
+          };
+        } else if (duration == null) {
+          let matches = update[1].match(/Duration: +([0-9]+:[0-9]+:[0-9.]+)/);
+          if (matches != null) {
+            duration = parseDuration(matches[1]);
+            console.log("Found duration:", duration);
+          }
         }
       }
+    })(),
+    {
+      canceled: false,
+      cancel() {
+        output.cancel();
+        this.canceled = true;
+      },
     }
-  })(), {
-    canceled: false,
-    cancel() {
-      output.cancel();
-      this.canceled = true;
-    }
-  });
+  );
 }
 
 export function extractAudio(src: string, dst: string): CancelableAsyncIterableIterator<Progress> {
   let output = runFFmpegCommand(["-i", src, "-q:a", "0", "-map", "a", dst, "-y", "-progress", "pipe:1"]);
-  return Object.assign((async function* () {
-    yield* output;
-  })(), {
-    canceled: false,
-    cancel() {
-      output.cancel();
-      this.canceled = true;
-    },
-  })
+  return Object.assign(
+    (async function* () {
+      yield* output;
+    })(),
+    {
+      canceled: false,
+      cancel() {
+        output.cancel();
+        this.canceled = true;
+      },
+    }
+  );
 }
 /** Start and End as numbers of seconds, including fractions of a second */
-export function trimAny(src: string, dst: string, start: number, end: number): CancelableAsyncIterableIterator<Progress> {
+export function trimAny(
+  src: string,
+  dst: string,
+  start: number,
+  end: number
+): CancelableAsyncIterableIterator<Progress> {
   let output = runFFmpegCommand([
-    "-i", src,
-    "-ss", start.toString(),
-    "-to", end.toString(),
-    "-c:v", "copy",
-    "-c:a", "copy",
+    "-i",
+    src,
+    "-ss",
+    start.toString(),
+    "-to",
+    end.toString(),
+    "-c:v",
+    "copy",
+    "-c:a",
+    "copy",
     dst,
     "-y",
-    "-progress", "pipe:1"
+    "-progress",
+    "pipe:1",
   ]);
 
-  return Object.assign((async function* () {
-    let duration = end - start;
-    for await (let update of output) {
-      yield {
-        ...update,
-        total: duration,
-        progressPercent: (update.progress / (duration ?? 0)) * 100,
-        eta: ((duration ?? 0) - update.progress) / update.speed,
+  return Object.assign(
+    (async function* () {
+      let duration = end - start;
+      for await (let update of output) {
+        yield {
+          ...update,
+          total: duration,
+          progressPercent: (update.progress / (duration ?? 0)) * 100,
+          eta: ((duration ?? 0) - update.progress) / update.speed,
+        };
       }
+    })(),
+    {
+      canceled: false,
+      cancel() {
+        output.cancel();
+        this.canceled = true;
+      },
     }
-  })(), {
-    canceled: false,
-    cancel() {
-      output.cancel();
-      this.canceled = true;
-    },
-  })
+  );
 }

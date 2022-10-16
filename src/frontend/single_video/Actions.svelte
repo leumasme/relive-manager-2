@@ -18,7 +18,7 @@
   import DeleteAction from "./DeleteAction.svelte";
   import ExtractAudioAction from "./ExtractAudioAction.svelte";
   import ExportAction from "./ExportAction.svelte";
-import TrimAction from "./TrimAction.svelte";
+  import TrimAction from "./TrimAction.svelte";
   let activeAction = writable<typeof SvelteComponent | false>(false);
 
   // TODO: Handle switching video/variation while an action is open/running

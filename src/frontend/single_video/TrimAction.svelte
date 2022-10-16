@@ -46,7 +46,7 @@
   let started = false;
   let failed = false;
   let canceled = false;
-  let iter : ReturnType<typeof extractAudio> | null = null;
+  let iter: ReturnType<typeof extractAudio> | null = null;
   async function executeTrim() {
     console.log("Trimming video from " + start + " to " + end);
 

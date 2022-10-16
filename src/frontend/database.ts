@@ -43,7 +43,7 @@ function createProxy(obj: any): any {
         if (!proxies.has(target[prop])) {
           let proxy = createProxy(target[prop]);
           proxies.set(target[prop], proxy);
-          return proxy
+          return proxy;
         }
         return proxies.get(target[prop]);
       } else return target[prop];
@@ -70,11 +70,16 @@ function getStorageOrDefault(key: string, fallback: string) {
   return item;
 }
 
-const realDb: DatabaseRoot = JSON.parse(getStorageOrDefault("database", JSON.stringify({
-  videos: [],
-  tags: [],
-  startCount: 0,
-})));
+const realDb: DatabaseRoot = JSON.parse(
+  getStorageOrDefault(
+    "database",
+    JSON.stringify({
+      videos: [],
+      tags: [],
+      startCount: 0,
+    })
+  )
+);
 export const db: DatabaseRoot = createProxy(realDb);
 
 export function tagForName(name: string): Tag {

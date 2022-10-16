@@ -57,7 +57,7 @@
     transition: background 0.2s cubic-bezier(0.25, 0.1, 0.25, 1);
     -webkit-appearance: none;
   }
-  .close>img:hover {
+  .close > img:hover {
     filter: brightness(0.8);
   }
 
