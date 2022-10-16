@@ -27,7 +27,7 @@ export type DatabaseRoot = {
   startCount: number;
 };
 
-let proxies = new WeakMap<any, any>();
+const proxies = new WeakMap<any, any>();
 const isProxy = Symbol("isProxy");
 function createProxy(obj: any): any {
   return new Proxy(obj, {
@@ -41,7 +41,7 @@ function createProxy(obj: any): any {
       if (typeof target[prop] == "object") {
         if (target[prop][isProxy]) return target[prop];
         if (!proxies.has(target[prop])) {
-          let proxy = createProxy(target[prop]);
+          const proxy = createProxy(target[prop]);
           proxies.set(target[prop], proxy);
           return proxy;
         }
@@ -91,5 +91,5 @@ export function tagForName(name: string): Tag {
   return newTag;
 }
 
-export let videoPath = getStorageOrDefault("videoPath", "Y:/ReLive Videos/Videos");
-export let variationPath = getStorageOrDefault("variationPath", "C:/Users/Temm/Videos/Replay Variations");
+export const videoPath = getStorageOrDefault("videoPath", "Y:/ReLive Videos/Videos");
+export const variationPath = getStorageOrDefault("variationPath", "C:/Users/Temm/Videos/Replay Variations");

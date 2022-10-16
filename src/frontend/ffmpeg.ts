@@ -8,9 +8,9 @@ interface CancelableAsyncIterableIterator<T> extends AsyncIterableIterator<T> {
 
 function runFFmpegCommandRaw(args: string[]): CancelableAsyncIterableIterator<[string, string]> {
   console.log("Running ffmpeg command:", "ffmpeg " + args.join(" "));
-  let process = spawn("ffmpeg", args);
+  const process = spawn("ffmpeg", args);
 
-  let buffer: [string, string][] = [];
+  const buffer: [string, string][] = [];
   type ResolveFunc = (
     value: IteratorResult<[string, string], any> | PromiseLike<IteratorResult<[string, string], any>>
   ) => void;
@@ -60,8 +60,7 @@ function runFFmpegCommandRaw(args: string[]): CancelableAsyncIterableIterator<[s
           reject(new Error("Async Iterator already in use"));
         } else if (buffer.length != 0) {
           // If we have data already stored up, we can resolve with that
-          let val = buffer.shift()!;
-          resolve({ value: val, done: false });
+          resolve({ value: buffer.shift()!, done: false });
         } else {
           if (process.exitCode != null) {
             // If the process has already exited, we can resolve with done
@@ -87,7 +86,7 @@ type FFmpegProgress = {
   speed: number;
 };
 function parseFFmpegProgress(input: string): FFmpegProgress {
-  let entries: Record<string, string> = Object.fromEntries(
+  const entries: Record<string, string> = Object.fromEntries(
     input
       .split("\n")
       .filter((l) => l.trim().length > 0)
@@ -114,7 +113,7 @@ export type Progress = {
 
 // This only works if the output length is the same as the input length
 export function runFFmpegCommand(args: string[]): CancelableAsyncIterableIterator<Progress> {
-  let output = runFFmpegCommandRaw(args);
+  const output = runFFmpegCommandRaw(args);
 
   // We cant directly extend the IterableIterator that the generator function returns from within it,
   // so we have to create a separate generator function with our functionality inside a wrapper, call it
@@ -122,9 +121,9 @@ export function runFFmpegCommand(args: string[]): CancelableAsyncIterableIterato
   return Object.assign(
     (async function* () {
       let duration: number | null = null;
-      for await (let update of output) {
+      for await (const update of output) {
         if (update[0] == "stdout") {
-          let data = parseFFmpegProgress(update[1]);
+          const data = parseFFmpegProgress(update[1]);
           yield {
             progress: data.processed_time,
             speed: data.speed,
@@ -133,7 +132,7 @@ export function runFFmpegCommand(args: string[]): CancelableAsyncIterableIterato
             eta: ((duration ?? 0) - data.processed_time) / data.speed,
           };
         } else if (duration == null) {
-          let matches = update[1].match(/Duration: +([0-9]+:[0-9]+:[0-9.]+)/);
+          const matches = update[1].match(/Duration: +([0-9]+:[0-9]+:[0-9.]+)/);
           if (matches != null) {
             duration = parseDuration(matches[1]);
             console.log("Found duration:", duration);
@@ -152,7 +151,7 @@ export function runFFmpegCommand(args: string[]): CancelableAsyncIterableIterato
 }
 
 export function extractAudio(src: string, dst: string): CancelableAsyncIterableIterator<Progress> {
-  let output = runFFmpegCommand(["-i", src, "-q:a", "0", "-map", "a", dst, "-y", "-progress", "pipe:1"]);
+  const output = runFFmpegCommand(["-i", src, "-q:a", "0", "-map", "a", dst, "-y", "-progress", "pipe:1"]);
   return Object.assign(
     (async function* () {
       yield* output;
@@ -173,7 +172,7 @@ export function trimAny(
   start: number,
   end: number
 ): CancelableAsyncIterableIterator<Progress> {
-  let output = runFFmpegCommand([
+  const output = runFFmpegCommand([
     "-i",
     src,
     "-ss",
@@ -192,8 +191,8 @@ export function trimAny(
 
   return Object.assign(
     (async function* () {
-      let duration = end - start;
-      for await (let update of output) {
+      const duration = end - start;
+      for await (const update of output) {
         yield {
           ...update,
           total: duration,
