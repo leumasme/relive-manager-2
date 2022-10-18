@@ -62,10 +62,6 @@ export default {
       compress: production ? true : false,
     }),
 
-    resolve({
-      browser: true,
-      dedupe: ["svelte"]
-    }),
     // If you have external dependencies installed from
     // npm, you'll most likely need these plugins. In
     // some cases you'll need additional configuration -
@@ -73,6 +69,10 @@ export default {
     // https://github.com/rollup/plugins/tree/master/packages/commonjs
     commonjs(),
     json(),
+    resolve({
+      browser: true,
+      dedupe: ["svelte"]
+    }),
     typescript({
       tsconfig: production ? "./tsconfig.svelte.prod.json" : "./tsconfig.svelte.json",
       sourceMap: !production,

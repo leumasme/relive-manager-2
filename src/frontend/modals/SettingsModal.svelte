@@ -13,7 +13,9 @@
 
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import { videoPath, variationPath } from "../database";
+  import { videoPath, variationPath, db } from "../database";
+  import fs from "fs/promises";
+  import glob from "fast-glob";
 
   let videoPathInput: HTMLInputElement;
   let variationInput: HTMLInputElement;
@@ -27,6 +29,65 @@
       location.reload();
     }
   });
+
+  async function cleanDatabaseEntries() {
+    // find all db video entries that don't have a file using the fs promises api
+    let dbVideos = db.videos;
+    let unusedVideos = await Promise.all(
+      dbVideos.map(async (video) => {
+        try {
+          await fs.stat(video.path);
+        } catch (e) {
+          return video.path;
+        }
+        return undefined;
+      })
+    );
+    unusedVideos = unusedVideos.filter((video) => video !== undefined);
+
+    // find all db variation entries that don't have a file using the fs promises api
+    let dbVariations = db.videos.map((v) => v.variations).flat();
+    let unusedVariations = await Promise.all(
+      dbVariations.map(async (variation) => {
+        try {
+          await fs.stat(variation.path);
+        } catch (e) {
+          return variation.path;
+        }
+        return undefined;
+      })
+    );
+    unusedVariations = unusedVariations.filter((variation) => variation !== undefined);
+
+    if (
+      confirm(
+        "Are you sure you want to remove " +
+          unusedVideos.length +
+          " videos and " +
+          unusedVariations.length +
+          " variations from the database?"
+      )
+    ) {
+      // remove all unused videos from the db
+      db.videos = db.videos.filter((video) => !unusedVideos.includes(video.path));
+
+      // remove all unused variations from the db
+      db.videos.forEach((video) => {
+        video.variations = video.variations.filter((variation) => !unusedVariations.includes(variation.path));
+      });
+    }
+  }
+  async function cleanUnlikedVariations() {
+    let files = await glob(variationPath + "/**/*.{mp4,mp3}");
+
+    let variations = db.videos.map((v) => v.variations).flat();
+    let unusedVariations = files.filter((file) => !variations.map((v) => v.path).includes(file));
+    if (confirm("Are you sure you want to remove " + unusedVariations.length + " variations from the file system?")) {
+      unusedVariations.forEach((variation) => {
+        fs.unlink(variation);
+      });
+    }
+  }
 </script>
 
 <!-- 
@@ -37,4 +98,6 @@
   <input id="videoPath" bind:this="{videoPathInput}" value="{videoPath}" />
   <label for="variationPath">Variation Path</label>
   <input id="variationPath" bind:this="{variationInput}" value="{variationPath}" />
+  <button on:click="{cleanDatabaseEntries}">Remove Broken Database Entries</button>
+  <button on:click="{cleanUnlikedVariations}">Remove Unlinked Variation Files</button>
 </div>
