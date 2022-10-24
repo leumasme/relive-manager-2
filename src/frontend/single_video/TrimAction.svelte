@@ -14,11 +14,8 @@
   import { selectedVideos, selectedVariation } from "../stores";
   export let activeAction: Writable<SvelteComponent | false>;
   import { videoElem } from "../stores";
-  import { generateVariationPath } from "../utils";
-  import { dirname, parse } from "path";
-  import fs from "fs/promises";
-  import { trimAny } from "../ffmpeg";
   import LoadingBar from "../LoadingBar.svelte";
+  import { TrimTask } from "../ffmpeg/trim";
   // let targetName = $selectedVariation?.name ?? $selectedVideos[0].name;
 
   function round(time: number) {
@@ -45,65 +42,25 @@
   let complete = false;
   let started = false;
   let failed = false;
-  let canceled = false;
-  let iter: ReturnType<typeof extractAudio> | null = null;
+  let task: TrimTask;
   async function executeTrim() {
     console.log("Trimming video from " + start + " to " + end);
-
-    let originalPath = $selectedVariation?.path ?? $selectedVideos[0].path;
-    let newPath = generateVariationPath(parse(originalPath).ext.slice(1));
-    let path = dirname(newPath);
-
     started = true;
-    await fs.mkdir(path, { recursive: true });
-
-    if (canceled) return;
-
-    iter = trimAny(originalPath, newPath, start, end);
-
-    for await (let update of iter) {
-      progress = update.progressPercent;
-    }
+    task = new TrimTask($selectedVideos[0], $selectedVariation, start, end);
+    task.on("progress", (p) => {
+      progress = p.percent;
+    });
+    await task.execute();
     progress = 100;
     complete = true;
-
-    // If the output file doesnt exist, the command failed
-    failed = !(await fs
-      .access(newPath)
-      .then(() => true)
-      .catch(() => false));
-
-    if (failed) {
-      alert("Failed to trim video!");
-      return;
-    }
-    if (canceled) {
-      await fs.unlink(newPath);
-      return;
-    }
-
-    let variationName = "Trim";
-    let i = 1;
-    while ($selectedVideos[0].variations.find((v) => v.name == variationName)) {
-      variationName = "Trim " + i++;
-    }
-
-    let previousActions = $selectedVariation?.actions ?? [];
-
-    $selectedVideos[0].variations.push({
-      actions: [...previousActions, { type: "trim", args: [start, end] }],
-      name: variationName,
-      path: newPath,
-    });
-    $selectedVideos = $selectedVideos;
+    $selectedVideos = $selectedVideos
     console.log("Done trimming video");
   }
   function done() {
     $activeAction = false;
   }
   function cancel() {
-    iter?.cancel();
-    canceled = true;
+    task.cancel();
     $activeAction = false;
   }
 </script>

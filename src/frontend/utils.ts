@@ -1,4 +1,4 @@
-import { variationPath } from "./database";
+import { variationPath, type Video } from "./database";
 import * as fs from "fs/promises";
 import { resolve } from "path";
 
@@ -21,9 +21,19 @@ export function parseDuration(duration: string): number {
 
 // Generate a file path based on current date and time
 export function generateVariationPath(ext: string) {
+  if (ext.startsWith(".")) ext = ext.slice(1);
   const now = new Date();
   const basePath = `${variationPath}/${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, "0")}`;
   const fileName = now.toJSON().replaceAll(":", "-");
 
   return `${basePath}/${fileName}.${ext}`;
+}
+
+export function generateVariationName(base: string, video: Video) {
+  let name = base;
+  let i = 1;
+  while (video.variations.find((v) => v.name == name)) {
+    name = base + " " + i++;
+  }
+  return name;
 }

@@ -7,68 +7,26 @@
 <script lang="ts">
   import type { SvelteComponent } from "svelte";
   import type { Writable } from "svelte/store";
-  import { extractAudio } from "../ffmpeg";
   import { selectedVideos, selectedVariation } from "../stores";
-  import { generateVariationPath } from "../utils";
-  import fs from "fs/promises";
-  import { dirname } from "path";
   import LoadingBar from "../LoadingBar.svelte";
+  import { ExtractAudioTask } from "../ffmpeg/extractAudio";
 
   export let activeAction: Writable<SvelteComponent | false>;
 
-  let progress: number = 0;
+  let progress = 0;
   let complete = false;
   let failed = false;
-  let canceled = false;
-  let iter: ReturnType<typeof extractAudio> | null = null;
+  let task: ExtractAudioTask;
   (async () => {
     console.log("Extracting audio...");
-    let fullPath = generateVariationPath("mp3");
-    let path = dirname(fullPath);
-
-    await fs.mkdir(path, { recursive: true });
-
-    if (canceled) return;
-
-    let filePath = $selectedVariation?.path ?? $selectedVideos[0].path;
-    iter = extractAudio(filePath, fullPath);
-
-    for await (let update of iter) {
-      console.warn(update);
-      progress = update.progressPercent;
-    }
+    task = new ExtractAudioTask($selectedVideos[0], $selectedVariation);
+    task.on("progress", (p)=>{
+      progress = p.percent;
+    })
+    await task.execute();
     progress = 100;
     complete = true;
-
-    // If the output file doesnt exist, the command failed
-    failed = !(await fs
-      .access(fullPath)
-      .then(() => true)
-      .catch(() => false));
-
-    if (failed) {
-      console.log("Failed to extract audio!");
-      return;
-    }
-    if (canceled) {
-      await fs.unlink(fullPath);
-      return;
-    }
-
-    let variationName = "Audio";
-    let i = 1;
-    while ($selectedVideos[0].variations.find((v) => v.name == variationName)) {
-      variationName = "Audio " + i++;
-    }
-
-    let previousActions = $selectedVariation?.actions ?? [];
-
-    $selectedVideos[0].variations.push({
-      actions: [...previousActions, { type: "extractAudio" }],
-      name: variationName,
-      path: fullPath,
-    });
-    $selectedVideos = $selectedVideos;
+    $selectedVideos = $selectedVideos
     console.log("Done extracting audio");
   })();
 
@@ -76,8 +34,7 @@
     $activeAction = false;
   }
   function cancel() {
-    iter?.cancel();
-    canceled = true;
+    task?.cancel();
     done();
   }
 </script>

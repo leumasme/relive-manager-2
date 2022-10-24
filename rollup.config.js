@@ -8,29 +8,9 @@ import sveltePreprocess from "svelte-preprocess";
 import typescript from "@rollup/plugin-typescript";
 import css from "rollup-plugin-css-only";
 import json from "@rollup/plugin-json";
+import alias from "@rollup/plugin-alias";
 
 const production = !process.env.ROLLUP_WATCH;
-
-// function serve() {
-//   let server;
-
-//   function toExit() {
-//     if (server) server.kill(0);
-//   }
-
-//   return {
-//     writeBundle() {
-//       if (server) return;
-//       server = require("child_process").spawn("npm", ["run", "start:frontend"], {
-//         stdio: ["ignore", "inherit", "inherit"],
-//         shell: true,
-//       });
-
-//       process.on("SIGTERM", toExit);
-//       process.on("exit", toExit);
-//     },
-//   };
-// }
 
 export default {
   input: "src/frontend/main.ts",
@@ -43,6 +23,11 @@ export default {
   },
   external: ["electron"],
   plugins: [
+    alias({
+      entries: [
+        { find: "./lib-cov/fluent-ffmpeg", replacement: "./lib/fluent-ffmpeg" },
+      ]
+    }),
     svelte({
       preprocess: sveltePreprocess({
         typescript: {
