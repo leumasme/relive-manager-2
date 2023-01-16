@@ -2,6 +2,7 @@ import EventEmitter, { once } from "events";
 import ffmpeg from "fluent-ffmpeg";
 import { mkdir } from "fs/promises";
 import { parse } from "path";
+import { writable } from "svelte/store";
 import type TypedEmitter from "typed-emitter"
 import { FfmpegJob } from "./wrapper";
 
@@ -18,6 +19,7 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
   started = false;
   completed = false;
   canceled = false;
+  progress = writable(0);
   get success() {
     return this.completed && !this.canceled;
   }
@@ -33,9 +35,11 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
       if (isFfmpegCommand(part)) part = new FfmpegJob(part);
       this.activePart = part;
       if (part instanceof FfmpegJob) {
-        let onProgress = (progress: TaskProgress) => this.updateProgress(progress.percent, i);
+        part.on("progress", (progress) => {
+          this.updateProgress(progress.percent ?? 0, i);
+        });
+        // TODO: handle errors
         part.start();
-        part.on("progress", onProgress);
         await part.waitOnce(["end", "canceled"]);
       } else {
         await part();
@@ -73,6 +77,7 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
       else calc += 10 / funcCount;
     }
     calc += percent / 100 * (isFfmpegCommand(this.parts[index]) ? 90 / jobCount : 10 / funcCount);
+    this.progress.set(calc);
     this.emit("progress", { percent: calc });
   }
   // This method is called when the task is canceled, and should delete any files created by the task.

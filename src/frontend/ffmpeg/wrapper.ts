@@ -8,7 +8,7 @@ interface FFmpegProgress {
   currentKbps: number; // current kbps throughput
   targetSize: number; // current output file size
   timemark: string; // TODO // current frame timestamp in seconds
-  percent: number; // estimated progress percentage
+  percent?: number; // estimated progress percentage
 }
 type FFmpegEvents = {
   start: (command: string) => void;

@@ -11,12 +11,11 @@
 <script lang="ts">
   import type { SvelteComponent } from "svelte";
   import type { Writable } from "svelte/store";
-  import { selectedVideos, selectedVariation } from "../stores";
-  export let activeAction: Writable<SvelteComponent | false>;
+  import { selectedVideos, selectedVariation, activeTasks } from "../stores";
   import { videoElem } from "../stores";
-  import LoadingBar from "../LoadingBar.svelte";
   import { TrimTask } from "../ffmpeg/trim";
-  // let targetName = $selectedVariation?.name ?? $selectedVideos[0].name;
+  import ActionStatusDisplay from "../ActionStatusDisplay.svelte";
+  export let activeAction: Writable<SvelteComponent | false>;
 
   function round(time: number) {
     return Math.round(time * 100) / 100;
@@ -38,34 +37,22 @@
     start = 0;
   }
 
-  let progress = 0;
-  let complete = false;
-  let started = false;
-  let failed = false;
   let task: TrimTask;
   async function executeTrim() {
     console.log("Trimming video from " + start + " to " + end);
-    started = true;
     task = new TrimTask($selectedVideos[0], $selectedVariation, start, end);
-    task.on("progress", (p) => {
-      progress = p.percent;
-    });
+    activeTasks.add(task);
     await task.execute();
-    progress = 100;
-    complete = true;
-    $selectedVideos = $selectedVideos
+
     console.log("Done trimming video");
   }
+
   function done() {
-    $activeAction = false;
-  }
-  function cancel() {
-    task.cancel();
     $activeAction = false;
   }
 </script>
 
-{#if !started}
+{#if !task}
   <div class="wrapper">
     <div class="timeselect">
       <input
@@ -97,12 +84,5 @@
   <button on:click="{executeTrim}">Trim</button>
   <button on:click="{() => ($activeAction = false)}">Cancel</button>
 {:else}
-  <div>
-    <LoadingBar progress="{progress}" failed="{failed}" />
-    {#if complete}
-      <button on:click="{done}">Done</button>
-    {:else}
-      <button on:click="{cancel}">Cancel</button>
-    {/if}
-  </div>
+  <ActionStatusDisplay task="{task}" done="{done}" />
 {/if}
