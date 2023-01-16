@@ -6,6 +6,7 @@ import { createFolderTaskPart, Task, type TaskPart } from "./task";
 import { unlink } from "fs/promises";
 
 export class TrimTask extends Task {
+  name = "Trim"
   parts: (TaskPart | ffmpeg.FfmpegCommand)[];
   output: string;
   constructor(

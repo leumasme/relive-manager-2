@@ -16,6 +16,7 @@ type TaskEvents = {
 export type TaskPart = FfmpegJob | (() => Promise<void>) | (() => void);
 
 export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskEvents>) {
+  abstract name: string;
   started = false;
   completed = false;
   canceled = false;

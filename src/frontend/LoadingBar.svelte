@@ -18,6 +18,6 @@
   export let failed: boolean;
 </script>
 
-<div class="loadwrapper" style="background-color: gray;">
+<div class="loadwrapper">
   <div class="loadinner" class:failed style="width:{progress}%;"></div>
 </div>

@@ -5,6 +5,7 @@ import { createFolderTaskPart, Task, type TaskPart } from "./task";
 import { unlink } from "fs/promises";
 
 export class ExtractAudioTask extends Task {
+  name = "Extract Audio";
   parts: (TaskPart | ffmpeg.FfmpegCommand)[];
   output: string;
   constructor(

@@ -30,6 +30,7 @@
   import ModalList from "./ModalList.svelte";
   import SplitPane from "./SplitPane.svelte";
   import Studio from "./Studio.svelte";
+    import TaskList from "./TaskList.svelte";
 
   console.log("This is start count #" + db.startCount++);
 </script>
@@ -39,6 +40,7 @@
     <SplitPane type="horizontal" min="{20}" max="{50}" pos="{20}">
       <section class="flex" slot="a" style="height:100%; background-color: #252526">
         <FileList />
+        <TaskList />
         <ModalList />
       </section>
       <section slot="b" style="height: 100%; background-color: #1E1E1E">
