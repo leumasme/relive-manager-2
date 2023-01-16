@@ -14,6 +14,9 @@
     flex-grow: 1;
     margin: 0px;
   }
+  .selected {
+    background-color: #7289da;
+  }
 </style>
 
 <script lang="ts">
@@ -43,9 +46,9 @@
 
 {#if $selectedVideos}
   <select size="3" on:change="{onChange}" on:keydown="{onKeydown}">
-    <option value="">Original</option>
+    <option value="" class:selected={!$selectedVariation}>Original</option>
     {#each $selectedVideos[0].variations as variation}
-      <option value="{variation.path}">{variation.name}</option>
+      <option value="{variation.path}" class:selected={$selectedVariation == variation}>{variation.name}</option>
     {/each}
   </select>
 {/if}
