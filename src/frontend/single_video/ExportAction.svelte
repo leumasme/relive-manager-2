@@ -41,7 +41,7 @@
 
   function openExplorer() {
     // Open explorer to the currently selected Video or Variation
-    exec(`explorer /select,"${path}"`);
+    exec(`explorer /select,"${path.replaceAll("/", "\\")}"`);
   }
 
   function exit() {
