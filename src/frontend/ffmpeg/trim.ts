@@ -26,7 +26,7 @@ export class TrimTask extends Task {
       () => {
         video.variations.push({
           name: generateVariationName("Trim", video),
-          actions: [...(variation?.actions ?? []), { type: "trim", args: [start, end] }],
+          actions: [...(variation?.actions ?? []), { type: "trim", args: { start, end } }],
           path: this.output,
         })
       }

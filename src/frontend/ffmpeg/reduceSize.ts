@@ -59,7 +59,10 @@ export class ReduceSizeTask extends Task {
       async () => {
         video.variations.push({
           name: generateVariationName("Shrunk", video),
-          actions: [...(variation?.actions ?? []), { type: "reduceSize" }],
+          actions: [
+            ...(variation?.actions ?? []),
+            { type: "reduceSize", args: { videoKbps: targetSize } }
+          ],
           path: this.output,
         });
         await rm(this.tempDir, { recursive: true, force: true }).catch(() => console.error);
@@ -75,7 +78,7 @@ export class ReduceSizeTask extends Task {
 
   protected async cleanupCancel() {
     await unlink(this.output).catch(() => { });
-    await rm(this.tempDir, { recursive: true, force: true }).catch(() => {});
+    await rm(this.tempDir, { recursive: true, force: true }).catch(() => { });
     // TODO: Remove intermediary files from ffmpeg 2-pass
   }
   async deleteTwopassFiles() {
