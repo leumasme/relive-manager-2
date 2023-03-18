@@ -2,13 +2,13 @@ import ffmpeg from "fluent-ffmpeg";
 import { extname } from "path";
 import type { Variation, Video } from "../database";
 import { generateVariationName, generateVariationPath } from "../utils";
-import { createFolderTaskPart, Task, type TaskPart } from "./task";
+import { createFolderTaskPart, Task } from "./task";
 import { unlink } from "fs/promises";
 
 export class TrimTask extends Task {
   name = "Trim"
-  parts: (TaskPart | ffmpeg.FfmpegCommand)[];
   output: string;
+  parts;
   constructor(
     public video: Video,
     public variation: Variation | null,

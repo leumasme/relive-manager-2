@@ -4,6 +4,7 @@ import { mkdir } from "fs/promises";
 import { parse } from "path";
 import { writable } from "svelte/store";
 import type TypedEmitter from "typed-emitter"
+import { DeferredFfmpegJob } from "./deferFfmpeg";
 import { FfmpegJob } from "./wrapper";
 
 interface TaskProgress {
@@ -13,7 +14,9 @@ type TaskEvents = {
   progress: (progress: TaskProgress) => void;
   complete: () => void;
 }
-export type TaskPart = FfmpegJob | (() => Promise<void>) | (() => void);
+
+export type ComputedTaskPart = FfmpegJob | (() => Promise<void>) | (() => void);
+export type TaskPart = ComputedTaskPart | ffmpeg.FfmpegCommand | DeferredFfmpegJob
 
 export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskEvents>) {
   abstract name: string;
@@ -25,15 +28,20 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
     return this.completed && !this.canceled;
   }
   // The task consists of a series of parts, which are executed in order.
-  abstract parts: (TaskPart | ffmpeg.FfmpegCommand)[];
-  private activePart: TaskPart | null = null;
+  abstract parts: TaskPart[];
+  private activePart: ComputedTaskPart | null = null;
   async execute() {
     this.started = true;
     for (let [i, part] of this.parts.entries()) {
       if (this.canceled) break;
-      console.time("TaskPart " + i);
+      console.time("TaskPart " + i); // TODO: Make unique if multiple tasks are running
 
+      // If the ffmpeg job needed variables from a previous part, it will be a DeferredFfmpegJob.
+      // Resolve it to an ffmpeg.FfmpegCommand
+      if (part instanceof DeferredFfmpegJob) part = part.resolve();
+      // wrap ffmpeg.FfmpegCommand in a FfmpegJob
       if (isFfmpegCommand(part)) part = new FfmpegJob(part);
+
       this.activePart = part;
       if (part instanceof FfmpegJob) {
         part.on("progress", (progress) => {
@@ -69,6 +77,13 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
     } else return await once(this, names);
   }
   updateProgress(percent: number, index: number) {
+    // Return early if completed to avoid float inaccuracy
+    if (index == this.parts.length - 1) {
+      this.progress.set(100);
+      this.emit("progress", { percent: 100 });
+      return;
+    };
+
     // The FFmpegJobs should take up 90% of the progress bar, and the rest is for function tasks.
     let jobCount = this.parts.filter(isFfmpegCommand).length;
     let funcCount = this.parts.length - jobCount;
@@ -92,6 +107,6 @@ export function createFolderTaskPart(path: string, hasFileName = false) {
   }
 }
 
-function isFfmpegCommand(part: any): part is ffmpeg.FfmpegCommand {
-  return part instanceof ffmpeg;
+function isFfmpegCommand(part: any): part is ffmpeg.FfmpegCommand | DeferredFfmpegJob {
+  return part instanceof ffmpeg || part instanceof DeferredFfmpegJob;
 }
