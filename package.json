@@ -111,7 +111,8 @@
     "copyright": "Copyright © 2022 ${author}",
     "icon": "public/favicon.png",
     "extraFiles": [
-      "ffmpeg.exe"
+      "ffmpeg.exe",
+      "ffprobe.exe"
     ],
     "win": {
       "target": [

@@ -3,7 +3,7 @@ export type Tag = {
   color?: string;
 };
 export type Action = {
-  type: "trim" | "compressToSize" | "extractAudio";
+  type: "trim" | "compressToSize" | "extractAudio" | "reduceSize";
   args?: any[];
 };
 
@@ -56,7 +56,7 @@ function saveStorage() {
   if (saveId == null)
     saveId = setImmediate(() => {
       saveId = null;
-      console.log("Saving");
+      console.log("Saving database");
       localStorage.setItem("database", JSON.stringify(realDb));
     });
 }
