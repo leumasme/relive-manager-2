@@ -129,7 +129,7 @@ const copyPublicFolderAndMinify = (folderPath, destinationPath) => {
         const unminified = readFileSync(curPath, "utf8");
         const minified = new CleanCSS().minify(unminified);
         writeFileSync(newPath, minified.styles);
-      } else if (/\.png$/.exec(curPath)) {
+      } else if (/\.(png)|(svg)|(ico)$/.exec(curPath)) {
         const pngFile = readFileSync(curPath);
         writeFileSync(newPath, pngFile);
       }
