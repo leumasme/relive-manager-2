@@ -10,12 +10,15 @@ import css from "rollup-plugin-css-only";
 import json from "@rollup/plugin-json";
 import alias from "@rollup/plugin-alias";
 
-const production = !process.env.ROLLUP_WATCH;
+const isProduction = !process.env.ROLLUP_WATCH;
 
+/**
+ * @type {import('rollup').RollupOptions}
+*/
 export default {
   input: "src/frontend/main.ts",
   output: {
-    sourcemap: !production,
+    sourcemap: !isProduction,
     format: "cjs",
     name: "fluide",
     file: "public/build/bundle.js",
@@ -31,22 +34,22 @@ export default {
     svelte({
       preprocess: sveltePreprocess({
         typescript: {
-          tsconfigFile: production ? "./tsconfig.svelte.prod.json" : "./tsconfig.svelte.json",
+          tsconfigFile: isProduction ? "./tsconfig.svelte.prod.json" : "./tsconfig.svelte.json",
         }
       }),
       compilerOptions: {
         // enable run-time checks when not in production
-        dev: !production,
+        dev: !isProduction,
       },
     }),
     // we'll extract any component CSS out into
     // a separate file - better for performance
     css({
       output: "bundle.css",
-      mangle: production ? true : false,
-      compress: production ? true : false,
+      mangle: isProduction,
+      compress: isProduction,
     }),
-
+    
     // If you have external dependencies installed from
     // npm, you'll most likely need these plugins. In
     // some cases you'll need additional configuration -
@@ -59,14 +62,14 @@ export default {
       dedupe: ["svelte"]
     }),
     typescript({
-      tsconfig: production ? "./tsconfig.svelte.prod.json" : "./tsconfig.svelte.json",
-      sourceMap: !production,
-      inlineSources: !production,
+      tsconfig: isProduction ? "./tsconfig.svelte.prod.json" : "./tsconfig.svelte.json",
+      sourceMap: !isProduction,
+      inlineSources: !isProduction,
     }),
-
+    
     // In dev mode, call `npm run start` once
     // the bundle has been generated
-    !production &&
+    !isProduction &&
     serve({
       host: "localhost",
       port: 5000,
@@ -76,15 +79,15 @@ export default {
 
     // Watch the `public` directory and refresh the
     // browser on changes when not in production
-    !production &&
+    !isProduction &&
     livereload({
       watch: "public",
       // verbose: true,
     }),
-
+    
     // If we're building for production (npm run build
     // instead of npm run dev), minify
-    production &&
+    isProduction &&
     terser({
       compress: true,
       mangle: true,
