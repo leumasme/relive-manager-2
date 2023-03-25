@@ -19,5 +19,5 @@
 </script>
 
 <div class="loadwrapper">
-  <div class="loadinner" class:failed style="width:{progress}%;"></div>
+  <div class="loadinner" class:failed="{failed}" style="width:{progress}%;"></div>
 </div>

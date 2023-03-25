@@ -1,6 +1,6 @@
 import EventEmitter, { once } from "events";
 import type ffmpeg from "fluent-ffmpeg";
-import type TypedEmitter from "typed-emitter"
+import type TypedEmitter from "typed-emitter";
 
 interface FFmpegProgress {
   frames: number; // processed frames
@@ -18,7 +18,7 @@ type FFmpegEvents = {
   error: (err: Error, stdout: string, stderr: string) => void;
   canceled: () => void;
   end: (stdout: string, stderr: string) => void;
-}
+};
 
 export class FfmpegJob extends (EventEmitter as new () => TypedEmitter<FFmpegEvents>) {
   started = false;
@@ -35,16 +35,16 @@ export class FfmpegJob extends (EventEmitter as new () => TypedEmitter<FFmpegEve
     targetSize: 0,
     timemark: "00:00:00.00",
     percent: 0,
+  };
+  constructor(private task: ReturnType<typeof ffmpeg>) {
+    super();
   }
-  constructor(
-    private task: ReturnType<typeof ffmpeg>
-  ) { super(); }
   async start() {
     if (this.started) throw new Error("Already Started");
     this.started = true;
     this.task.on("start", (command) => {
       this.started = true;
-      console.log("Using ffmpeg command", command)
+      console.log("Using ffmpeg command", command);
       this.emit("start", command);
     });
     this.task.on("progress", (progress) => {
@@ -69,7 +69,7 @@ export class FfmpegJob extends (EventEmitter as new () => TypedEmitter<FFmpegEve
       if (names.indexOf("error") > 0) throw new Error("waitOnce must receive error as the first item");
 
       const abort = new AbortController();
-      const val = await Promise.race(names.map(name => once(this, name, { signal: abort.signal })));
+      const val = await Promise.race(names.map((name) => once(this, name, { signal: abort.signal })));
       abort.abort();
       return val;
     } else return await once(this, names);

@@ -16,9 +16,9 @@ function createTaskStore(): TaskStore {
     add: (task: Task) => {
       task.on("complete", () => {
         update((tasks) => tasks.filter((t) => t !== task));
-      })
+      });
       update((tasks) => [...tasks, task]);
-    }
+    },
   };
 }
 export const activeTasks = createTaskStore();

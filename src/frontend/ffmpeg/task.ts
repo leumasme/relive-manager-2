@@ -3,7 +3,7 @@ import ffmpeg from "fluent-ffmpeg";
 import { mkdir } from "fs/promises";
 import { parse } from "path";
 import { writable } from "svelte/store";
-import type TypedEmitter from "typed-emitter"
+import type TypedEmitter from "typed-emitter";
 import { DeferredFfmpegJob } from "./deferFfmpeg";
 import { FfmpegJob } from "./wrapper";
 
@@ -13,10 +13,10 @@ interface TaskProgress {
 type TaskEvents = {
   progress: (progress: TaskProgress) => void;
   complete: () => void;
-}
+};
 
 export type ComputedTaskPart = FfmpegJob | (() => Promise<void>) | (() => void);
-export type TaskPart = ComputedTaskPart | ffmpeg.FfmpegCommand | DeferredFfmpegJob
+export type TaskPart = ComputedTaskPart | ffmpeg.FfmpegCommand | DeferredFfmpegJob;
 
 export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskEvents>) {
   abstract name: string;
@@ -67,11 +67,11 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
       await this.activePart.waitOnce(["end", "canceled"]);
     }
     this.cleanupCancel();
-  };
+  }
   async waitOnce<T extends keyof TaskEvents>(names: T | T[]) {
     if (Array.isArray(names)) {
       const abort = new AbortController();
-      const val = await Promise.race(names.map(name => once(this, name, { signal: abort.signal })));
+      const val = await Promise.race(names.map((name) => once(this, name, { signal: abort.signal })));
       abort.abort();
       return val;
     } else return await once(this, names);
@@ -82,7 +82,7 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
       this.progress.set(100);
       this.emit("progress", { percent: 100 });
       return;
-    };
+    }
 
     // The FFmpegJobs should take up 90% of the progress bar, and the rest is for function tasks.
     let jobCount = this.parts.filter(isFfmpegCommand).length;
@@ -92,7 +92,7 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
       if (isFfmpegCommand(this.parts[i])) calc += 90 / jobCount;
       else calc += 10 / funcCount;
     }
-    calc += percent / 100 * (isFfmpegCommand(this.parts[index]) ? 90 / jobCount : 10 / funcCount);
+    calc += (percent / 100) * (isFfmpegCommand(this.parts[index]) ? 90 / jobCount : 10 / funcCount);
     this.progress.set(calc);
     this.emit("progress", { percent: calc });
   }
@@ -104,7 +104,7 @@ export function createFolderTaskPart(path: string, hasFileName = false) {
   return async () => {
     if (hasFileName) ({ dir: path } = parse(path));
     await mkdir(path, { recursive: true });
-  }
+  };
 }
 
 function isFfmpegCommand(part: any): part is ffmpeg.FfmpegCommand | DeferredFfmpegJob {

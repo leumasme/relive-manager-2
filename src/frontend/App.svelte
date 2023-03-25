@@ -30,7 +30,7 @@
   import ModalList from "./ModalList.svelte";
   import SplitPane from "./SplitPane.svelte";
   import Studio from "./Studio.svelte";
-    import TaskList from "./TaskList.svelte";
+  import TaskList from "./TaskList.svelte";
 
   console.log("This is start count #" + db.startCount++);
 </script>

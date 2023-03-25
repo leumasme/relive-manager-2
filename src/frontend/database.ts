@@ -3,16 +3,18 @@ export type Tag = {
   color?: string;
 };
 
-export type Action = {
-  type: "trim";
-  args: { start: number; end: number };
-} | {
-  type: "reduceSize";
-  args: { videoKbps: number };
-} | {
-  type: "extractAudio";
-}
-
+export type Action =
+  | {
+    type: "trim";
+    args: { start: number; end: number };
+  }
+  | {
+    type: "reduceSize";
+    args: { videoKbps: number };
+  }
+  | {
+    type: "extractAudio";
+  };
 
 export type Variation = {
   path: string;
