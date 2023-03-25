@@ -127,13 +127,6 @@
     ],
     "extraResources": [
       "assets/**"
-    ],
-    "publish": [
-      {
-        "provider": "github",
-        "owner": "leumasme",
-        "repo": "relive-manager-2"
-      }
     ]
   }
 }
