@@ -1,25 +1,22 @@
 {
-  "compileOnSave": true,
   "compilerOptions": {
     "outDir": "../../build",
     "target": "ES2015",
     "module": "commonjs",
     "sourceMap": true,
     "stripInternal": true,
-    "lib": ["es2015", "esnext", "dom"],
+    "lib": [
+      "es2015",
+      "esnext",
+      "DOM" // TODO: https://github.com/electron/electron/issues/27092#issuecomment-1483915197
+    ],
     "moduleResolution": "node",
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noImplicitThis": true,
+    "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noEmitOnError": true,
-    "allowSyntheticDefaultImports": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
     "esModuleInterop": true,
     "isolatedModules": true
   },

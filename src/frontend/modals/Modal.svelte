@@ -431,7 +431,7 @@
             <svelte:component this="{state.closeButton}" onClose="{close}" />
           {:else}
             <button class:close="{!unstyled}" on:click="{close}" style="{cssCloseButton}">
-              <img src="icons/close.svg" alt="Close" style="width: 1.5rem; height: 1.5rem" />
+              <img src="./icons/close.svg" alt="Close" style="width: 1.5rem; height: 1.5rem" />
             </button>
           {/if}
         {/if}
