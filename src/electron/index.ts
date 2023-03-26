@@ -36,6 +36,8 @@ const createWindow = () => {
   });
   mainWindow.removeMenu();
 
+  remote.enable(mainWindow.webContents);
+  
   const url = isProd ? `file://${join(__dirname, "public", "index.html")}` : "http://localhost:5000";
 
   mainWindow.loadURL(url).catch((err) => {
@@ -46,7 +48,6 @@ const createWindow = () => {
   if (!isProd) mainWindow.webContents.openDevTools();
 
   mainWindow.once("ready-to-show", () => {
-    remote.enable(mainWindow!.webContents);
     console.timeEnd("ready-till-show");
     mainWindow!.show();
   });

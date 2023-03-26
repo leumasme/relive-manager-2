@@ -31,6 +31,7 @@
   import SplitPane from "./SplitPane.svelte";
   import Studio from "./Studio.svelte";
   import TaskList from "./TaskList.svelte";
+  import "./ffmpeg/setupFfmpeg";
 
   console.log("This is start count #" + db.startCount++);
 </script>
