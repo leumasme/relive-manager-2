@@ -13,10 +13,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: npm
 
       - name: Build/release Electron app
         run: |
-          npm install
+          npm ci
           npm run dist
       
       - name: Upload release artifacts
