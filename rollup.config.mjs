@@ -97,7 +97,9 @@ export default {
     copy({
       targets: [
         { src: "public", dest: "build" },
-      ]
+      ],
+      verbose: true,
+      hook: "writeBundle",
     })
   ],
   watch: {
