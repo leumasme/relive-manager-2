@@ -47,6 +47,13 @@ const createWindow = () => {
 
   if (!isProd) mainWindow.webContents.openDevTools();
 
+  // Open devtools when f12 is pressed
+  mainWindow.webContents.on("before-input-event", (_event, input) => {
+    if (input.key === "F12") {
+      mainWindow!.webContents.toggleDevTools();
+    }
+  });
+
   mainWindow.once("ready-to-show", () => {
     console.timeEnd("ready-till-show");
     mainWindow!.show();
