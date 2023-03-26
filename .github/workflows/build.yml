@@ -3,7 +3,7 @@ name: Build/release
 on: push
 
 jobs:
-  release:
+  build:
     runs-on: windows-2019
     steps:
       - name: Check out Git repository
@@ -19,6 +19,8 @@ jobs:
         run: |
           npm ci
           npm run dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Upload release artifacts
         uses: actions/upload-artifact@v3
