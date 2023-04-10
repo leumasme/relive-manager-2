@@ -15,7 +15,7 @@
 
   let task: ReduceSizeTask;
   let targetSizeInKb: number;
-  
+
   async function executeTask() {
     console.log("Reducing Video Size to ");
     task = new ReduceSizeTask($selectedVideos[0], $selectedVariation, targetSizeInKb);
@@ -29,14 +29,17 @@
     $activeAction = false;
   }
 </script>
+
 {#if !task}
-<!-- TODO: make this look half-decent -->
+  <!-- TODO: make this look half-decent -->
   <div class="wrapper">
     <!-- TODO: save previous value -->
     <input type="number" bind:value="{targetSizeInKb}" />
   </div>
-  <button on:click="{executeTask}">Start</button>
-  <button on:click="{() => ($activeAction = false)}">Cancel</button>
+  <div>
+    <button on:click="{executeTask}">Start</button>
+    <button on:click="{() => ($activeAction = false)}">Cancel</button>
+  </div>
 {:else}
   <ActionStatusDisplay task="{task}" done="{done}" />
 {/if}
