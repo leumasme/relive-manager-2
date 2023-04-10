@@ -19,6 +19,6 @@
 </script>
 
 <div class="wrapper">
-  <img on:click="{settingsClick}" class="svgbtn" src="/icons/settings.svg" alt="settings" width="32" />
+  <img on:click="{settingsClick}" class="svgbtn" src="./icons/settings.svg" alt="settings" width="32" />
 </div>
 <Modal show="{bla}" />

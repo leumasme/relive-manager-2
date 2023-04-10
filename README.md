@@ -1,8 +1,6 @@
 # ReLive Manager
 A studio/manager for Radeon ReLive replays.
 
-Based on [electron-svelte-typescript](https://github.com/fuzzc0re/electron-svelte-typescript).
-
 Under the hood, it uses Electron, Svelte and FFmpeg.
 Electron is intentionally set to insecure/unisolated mode so I dont have to separate fs/ffmpeg stuff into the electron side.
 This application never loads content from the internet so I dont believe the isolation features are useful here.

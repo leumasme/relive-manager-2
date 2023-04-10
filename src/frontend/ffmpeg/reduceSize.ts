@@ -12,11 +12,7 @@ export class ReduceSizeTask extends Task {
   output: string;
   parts;
   tempDir = `${process.env.TEMP}\\relive-manager\\${Math.random().toString(36).substring(2, 15)}`;
-  constructor(
-    public video: Video,
-    public variation: Variation | null,
-    public targetSize: number
-  ) {
+  constructor(public video: Video, public variation: Variation | null, public targetSize: number) {
     super();
     this.output = generateVariationPath("mp4");
     let videoBitrate: number;
@@ -25,18 +21,18 @@ export class ReduceSizeTask extends Task {
       createFolderTaskPart(this.output, true),
       async () => {
         let probe = await ffprobe((variation ?? video).path);
-        let audioStreams = probe.streams.filter(s => s.codec_type === "audio");
+        let audioStreams = probe.streams.filter((s) => s.codec_type === "audio");
         // Total audio size in bits
         let audioSize = audioStreams
-          .map(s => Number(s.bit_rate) * Number(s.duration))
-          .filter(s => !isNaN(s))
+          .map((s) => Number(s.bit_rate) * Number(s.duration))
+          .filter((s) => !isNaN(s))
           .reduce((a, b) => a + b, 0);
 
-        let videoStreams = probe.streams.filter(s => s.codec_type === "video");
+        let videoStreams = probe.streams.filter((s) => s.codec_type === "video");
         if (videoStreams.length !== 1) throw new Error("File has more than one video stream, which is not supported");
         let videoLength = Number(videoStreams[0].duration);
 
-        videoBitrate = (targetSize * 8 - (audioSize / 1000)) / videoLength;
+        videoBitrate = (targetSize * 8 - audioSize / 1000) / videoLength;
         // TODO: Handle properly; this happens if audio is too large
         if (videoBitrate < 1) throw new Error("Target size is too small");
       },
@@ -46,7 +42,7 @@ export class ReduceSizeTask extends Task {
           .videoCodec("libx264")
           .videoBitrate(videoBitrate)
           .format("mp4")
-          .output("NUL"),
+          .output("NUL")
       ),
       deferFfmpeg(() =>
         ffmpeg((variation ?? video).path, { cwd: this.tempDir })
@@ -54,20 +50,17 @@ export class ReduceSizeTask extends Task {
           .videoCodec("libx264")
           .videoBitrate(videoBitrate)
           .audioCodec("copy")
-          .output(this.output),
+          .output(this.output)
       ),
       async () => {
         video.variations.push({
           name: generateVariationName("Shrunk", video),
-          actions: [
-            ...(variation?.actions ?? []),
-            { type: "reduceSize", args: { videoKbps: targetSize } }
-          ],
+          actions: [...(variation?.actions ?? []), { type: "reduceSize", args: { videoKbps: targetSize } }],
           path: this.output,
         });
         await rm(this.tempDir, { recursive: true, force: true }).catch(() => console.error);
-      }
-    ]
+      },
+    ];
   }
 
   override async execute(): Promise<void> {
@@ -77,13 +70,13 @@ export class ReduceSizeTask extends Task {
   }
 
   protected async cleanupCancel() {
-    await unlink(this.output).catch(() => { });
-    await rm(this.tempDir, { recursive: true, force: true }).catch(() => { });
+    await unlink(this.output).catch(() => {});
+    await rm(this.tempDir, { recursive: true, force: true }).catch(() => {});
     // TODO: Remove intermediary files from ffmpeg 2-pass
   }
   async deleteTwopassFiles() {
     let folder = dirname((this.variation ?? this.video).path);
-    console.log("Dirname: ", folder)
+    console.log("Dirname: ", folder);
     // unlink(folder + "ffmpeg2pass-0.log.mbtree.temp")
     // unlink(folder + "ffmpeg2pass-0.log.temp")
   }

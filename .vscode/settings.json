@@ -1,12 +1,13 @@
 {
   "editor.tabSize": 2,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
   "editor.rulers": [
-    120
+    80
   ],
   "search.exclude": {
     "**/node_modules": true,
     "/scripts": true,
     "package-lock.json": true,
     ".gitignore": true
-  }
+  },
 }

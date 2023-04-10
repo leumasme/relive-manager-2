@@ -46,9 +46,9 @@
 
 {#if $selectedVideos}
   <select size="3" on:change="{onChange}" on:keydown="{onKeydown}">
-    <option value="" class:selected={!$selectedVariation}>Original</option>
+    <option value="" class:selected="{!$selectedVariation}">Original</option>
     {#each $selectedVideos[0].variations as variation}
-      <option value="{variation.path}" class:selected={$selectedVariation == variation}>{variation.name}</option>
+      <option value="{variation.path}" class:selected="{$selectedVariation == variation}">{variation.name}</option>
     {/each}
   </select>
 {/if}
