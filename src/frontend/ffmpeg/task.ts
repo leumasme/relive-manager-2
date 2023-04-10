@@ -29,7 +29,7 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
   }
   // The task consists of a series of parts, which are executed in order.
   abstract parts: TaskPart[];
-  private activePart: ComputedTaskPart | null = null;
+  private activePart: ComputedTaskPart | Promise<void> | null = null;
   async execute() {
     this.started = true;
     for (let [i, part] of this.parts.entries()) {
@@ -51,7 +51,12 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
         part.start();
         await part.waitOnce(["end", "canceled"]);
       } else {
-        await part();
+        let result = part();
+        // We have to make the promise accessible from cancel(), so we can await it.
+        if (result instanceof Promise) {
+          this.activePart = result;
+          await result;
+        };
       }
       this.updateProgress(100, i);
       console.timeEnd("TaskPart " + i);
@@ -61,11 +66,14 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
     this.activePart = null;
   }
   async cancel() {
+    console.log("Cancelled task")
     this.canceled = true;
+    // Make sure no part is running before performing cleanup
     if (this.activePart instanceof FfmpegJob) {
       this.activePart.cancel();
       await this.activePart.waitOnce(["end", "canceled"]);
-    }
+    } else await this.activePart;
+
     this.cleanupCancel();
   }
   async waitOnce<T extends keyof TaskEvents>(names: T | T[]) {
