@@ -37,7 +37,7 @@ const createWindow = () => {
   mainWindow.removeMenu();
 
   remote.enable(mainWindow.webContents);
-  
+
   const url = isProd ? `file://${join(__dirname, "public", "index.html")}` : "http://localhost:5000";
 
   mainWindow.loadURL(url).catch((err) => {

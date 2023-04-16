@@ -10,4 +10,7 @@
     "package-lock.json": true,
     ".gitignore": true
   },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

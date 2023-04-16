@@ -5,16 +5,16 @@ export type Tag = {
 
 export type Action =
   | {
-    type: "trim";
-    args: { start: number; end: number };
-  }
+      type: "trim";
+      args: { start: number; end: number };
+    }
   | {
-    type: "reduceSize";
-    args: { videoKbps: number };
-  }
+      type: "reduceSize";
+      args: { videoKbps: number };
+    }
   | {
-    type: "extractAudio";
-  };
+      type: "extractAudio";
+    };
 
 export type Variation = {
   path: string;

@@ -56,7 +56,7 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
         if (result instanceof Promise) {
           this.activePart = result;
           await result;
-        };
+        }
       }
       this.updateProgress(100, i);
       console.timeEnd("TaskPart " + i);
@@ -66,7 +66,7 @@ export abstract class Task extends (EventEmitter as new () => TypedEmitter<TaskE
     this.activePart = null;
   }
   async cancel() {
-    console.log("Cancelled task")
+    console.log("Cancelled task");
     this.canceled = true;
     // Make sure no part is running before performing cleanup
     if (this.activePart instanceof FfmpegJob) {

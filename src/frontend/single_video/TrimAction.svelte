@@ -21,8 +21,8 @@
     return Math.round(time * 100) / 100;
   }
 
-  let start = 0,
-    end = round($videoElem!.duration);
+  let start = 0;
+  let end = round($videoElem!.duration);
 
   function setEndNow() {
     end = round($videoElem!.currentTime);
