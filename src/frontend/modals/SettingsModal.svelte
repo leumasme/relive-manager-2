@@ -88,6 +88,12 @@
       });
     }
   }
+  function resetDatabase() {
+    if (confirm("Are you sure you want to reset the database?")) {
+      localStorage.removeItem("database");
+      location.reload();
+    }
+  }
 </script>
 
 <!-- 
@@ -100,4 +106,5 @@
   <input id="variationPath" bind:this="{variationInput}" value="{variationPath}" />
   <button on:click="{cleanDatabaseEntries}">Remove Broken Database Entries</button>
   <button on:click="{cleanUnlikedVariations}">Remove Unlinked Variation Files</button>
+  <button on:click="{resetDatabase}">Reset Database</button>
 </div>
