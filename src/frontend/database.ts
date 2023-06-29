@@ -34,6 +34,9 @@ export type DatabaseRoot = {
   videos: Video[];
   tags: Tag[]; // Order here controls tag importance
   startCount: number;
+  settings: {
+    reduceSizeTarget: number; // Last target size of reduceSize action, in kbps
+  }
 };
 
 const proxies = new WeakMap<any, any>();
@@ -86,7 +89,10 @@ const realDb: DatabaseRoot = JSON.parse(
       videos: [],
       tags: [],
       startCount: 0,
-    })
+      settings: {
+        reduceSizeTarget: 25000,
+      },
+    } satisfies DatabaseRoot) 
   )
 );
 export const db: DatabaseRoot = createProxy(realDb);
