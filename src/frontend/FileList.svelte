@@ -104,14 +104,13 @@
       $selectedVideos = $selectedVideos;
     } else if (evt.shiftKey) {
       // select all videos between the last selected video and the current one
-      // TODO: this will have to be reworked when we add sorting
       let lastSelected = $selectedVideos[$selectedVideos.length - 1];
       if (lastSelected) {
-        let lastSelectedIndex = db.videos.indexOf(lastSelected);
-        let currentIndex = db.videos.indexOf(video);
+        let lastSelectedIndex = shownVideos.indexOf(lastSelected);
+        let currentIndex = shownVideos.indexOf(video);
         let start = Math.min(lastSelectedIndex, currentIndex);
         let end = Math.max(lastSelectedIndex, currentIndex);
-        let newlySelected = db.videos.slice(start, end + 1);
+        let newlySelected = shownVideos.slice(start, end + 1);
         // $selectedVideos will have to merged with newlySelected and deduped
         $selectedVideos = $selectedVideos.concat(newlySelected).filter(onlyUniqueFilter);
       } else {
