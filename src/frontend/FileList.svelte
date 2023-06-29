@@ -152,18 +152,30 @@
 
     return score;
   }
-  // TODO: Does this need performance optimizations?
+
   function searchVideos(videos: Video[], search: string) {
     console.time("searchVideos");
+    if (search == "") {
+      let vids = Array.from(videos);
+      vids.sort((a, b) => {
+        if (a.seen == b.seen) return a.name.localeCompare(b.name);
+        return a.seen ? 1 : -1;
+      });
+      console.timeEnd("searchVideos");
+      return vids;
+    }
     let searchLower = search.toLowerCase();
-    let filtered = videos
-      .filter((v) => v.name.toLowerCase().includes(searchLower))
-      .filter((v) => searchScoreVideo(v, search) > 0);
+    
+    // Pre-calculate the search score for each video for performance
+    let scores = new Map(videos.map((v) => [v, searchScoreVideo(v, searchLower)]));
+    
+    let filtered = videos.filter((v) => scores.get(v)! > 0);
 
-    // sort videos by how well they match the search in title and tags
+    // sort videos by how well they match the search in title and tags, or alphabetically
     let sorted = filtered.sort((a, b) => {
-      let aScore = searchScoreVideo(a, searchLower);
-      let bScore = searchScoreVideo(b, searchLower);
+      let aScore = scores.get(a)!;
+      let bScore = scores.get(b)!;
+      if (aScore == bScore) return a.name.localeCompare(b.name); // fall back to alphabetical order
       return bScore - aScore;
     });
     console.timeEnd("searchVideos");
@@ -180,7 +192,7 @@
     {#await fileProm}
       Loading Files...
     {:then}
-      {#each searchstr.length == 0 ? db.videos : shownVideos as video}
+      {#each shownVideos as video}
         <div
           class="file"
           class:unseen="{!video.seen}"
