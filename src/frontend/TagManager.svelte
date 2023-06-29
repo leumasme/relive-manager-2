@@ -53,6 +53,7 @@
 <script lang="ts">
   import { db, tagForName } from "./database";
   import { selectedVideos } from "./stores";
+  import type { MouseEventHandler } from "svelte/elements"
 
   function videoHasTag(name: string) {
     return $selectedVideos[0].tags.some((t) => t.name == tagForName(name).name);
@@ -93,8 +94,7 @@
   $: suggestedTags = db.tags.filter((x) => x.name.includes(input) && !videoHasTag(x.name)).slice(0, 7);
 
   // TODO: Arrow key & enter navigation for suggestions
-  type TagClickHandler = svelteHTML.MouseEventHandler<HTMLDivElement>;
-  const tagSuggestionClicked: TagClickHandler = (evt) => {
+  const tagSuggestionClicked: MouseEventHandler<HTMLDivElement> = (evt) => {
     let tag = tagForName(evt.currentTarget.innerHTML);
     if (videoHasTag(tag.name)) return;
 
