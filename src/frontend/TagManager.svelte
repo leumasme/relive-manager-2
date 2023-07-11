@@ -53,7 +53,7 @@
 <script lang="ts">
   import { db, tagForName } from "./database";
   import { selectedVideos } from "./stores";
-  import type { MouseEventHandler } from "svelte/elements"
+  import type { MouseEventHandler } from "svelte/elements";
 
   function videoHasTag(name: string) {
     return $selectedVideos[0].tags.some((t) => t.name == tagForName(name).name);

@@ -36,7 +36,7 @@ export type DatabaseRoot = {
   startCount: number;
   settings: {
     reduceSizeTarget: number; // Last target size of reduceSize action, in kbps
-  }
+  };
 };
 
 const proxies = new WeakMap<any, any>();
@@ -92,7 +92,7 @@ const realDb: DatabaseRoot = JSON.parse(
       settings: {
         reduceSizeTarget: 25000,
       },
-    } satisfies DatabaseRoot) 
+    } satisfies DatabaseRoot)
   )
 );
 export const db: DatabaseRoot = createProxy(realDb);

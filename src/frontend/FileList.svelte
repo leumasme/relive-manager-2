@@ -165,10 +165,10 @@
       return vids;
     }
     let searchLower = search.toLowerCase();
-    
+
     // Pre-calculate the search score for each video for performance
     let scores = new Map(videos.map((v) => [v, searchScoreVideo(v, searchLower)]));
-    
+
     let filtered = videos.filter((v) => scores.get(v)! > 0);
 
     // sort videos by how well they match the search in title and tags, or alphabetically
