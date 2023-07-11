@@ -1,4 +1,5 @@
 build
+.wireit
 .DS_Store
 
 # Logs

@@ -30,29 +30,125 @@
   "homepage": "https://github.com/leumasme/relive-manager-2#readme",
   "main": "build/index.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=development npm-run-all -p -r build:frontend:dev start:electron",
-    "build": "cross-env NODE_ENV=production npm-run-all -s build:frontend:prod build:electron:prod",
-    "build:frontend:dev": "cross-env NODE_ENV=development rollup -c -w",
-    "build:frontend:prod": "cross-env NODE_ENV=production rollup -c",
-    "build:electron:dev": "tsc --p ./src/electron/tsconfig.json",
-    "build:electron:dev:watch": "tsc -w --p ./src/electron/tsconfig.json",
-    "build:electron:prod": "cross-env NODE_ENV=production tsc --p ./src/electron/tsconfig.prod.json",
-    "validate:svelte": "svelte-check",
-    "start:electron:run": "electron .",
-    "start:electron:nodemon": "nodemon",
-    "start:electron:dev": "npm-run-all -s build:electron:dev start:electron:nodemon",
-    "start:electron": "npm-run-all -p build:electron:dev:watch start:electron:dev",
+    "start": "wireit",
+    "build": "wireit",
     "postinstall": "electron-builder install-app-deps",
     "prepack": "npm run build",
     "pack": "electron-builder --dir",
     "predist": "npm run build",
-    "dist": "cross-env CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder",
-    "format": "prettier --write \"src/**/**/*\"",
-    "lint:electron": "eslint -c eslint.electron.json --ext .js,.ts src/electron",
-    "lint:svelte": "eslint -c eslint.svelte.json --ext .js,.ts src/frontend",
-    "lint": "npm-run-all -s lint:electron lint:svelte",
-    "prepublishOnly": "npm-run-all -s lint",
-    "preversion": "npm-run-all -s lint format"
+    "dist": "wireit",
+    "format": "wireit",
+    "lint": "wireit",
+    "prepublishOnly": "npm run lint",
+    "preversion": "wireit"
+  },
+  "wireit": {
+    "start": {
+      "command": "electron .",
+      "service": true,
+      "dependencies": [
+        "build-frontend-dev",
+        "build-electron-dev"
+      ],
+      "files": [
+        "build/**"
+      ]
+    },
+    "build": {
+      "dependencies": [
+        "build-frontend-prod",
+        "build-electron-prod"
+      ]
+    },
+    "build-frontend-dev": {
+      "command": "rollup -c -w",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "files": [
+        "src/frontend/**",
+        "rollup.config.mjs"
+      ],
+      "service": {
+        "readyWhen": {
+          "lineMatches": "created"
+        }
+      }
+    },
+    "build-electron-dev": {
+      "command": "tsc --pretty --project ./src/electron/tsconfig.json",
+      "files": [
+        "src/electron/**"
+      ],
+      "output": [
+        "build/**"
+      ]
+    },
+    "build-frontend-prod": {
+      "command": "rollup -c",
+      "env": {
+        "NODE_ENV": "production"
+      },
+      "files": [
+        "src/frontend/**",
+        "rollup.config.mjs"
+      ],
+      "output": [
+        "build/public/**"
+      ]
+    },
+    "build-electron-prod": {
+      "command": "tsc --pretty --project ./src/electron/tsconfig.prod.json",
+      "files": [
+        "src/electron/**"
+      ],
+      "output": [
+        "build/**"
+      ]
+    },
+    "preversion": {
+      "dependencies": [
+        "lint",
+        "format"
+      ]
+    },
+    "lint": {
+      "dependencies": [
+        "lint-electron",
+        "lint-frontend",
+        "check-svelte"
+      ]
+    },
+    "lint-electron": {
+      "command": "eslint -c eslint.electron.json --ext .js,.ts src/electron",
+      "files": [
+        "src/electron/**"
+      ]
+    },
+    "lint-frontend": {
+      "command": "eslint -c eslint.svelte.json --ext .js,.ts src/frontend",
+      "files": [
+        "src/frontend/**"
+      ]
+    },
+    "check-svelte": {
+      "command": "svelte-check --workspace src/frontend --output human",
+      "files": [
+        "src/frontend/**"
+      ]
+    },
+    "format": {
+      "command": "prettier --write \"src/**\"",
+      "files": [
+        "src/**"
+      ]
+    },
+    "dist": {
+      "command": "electron-builder",
+      "env": {
+        "CSC_IDENTITY_AUTO_DISCOVERY": "false"
+      }
+    }
   },
   "dependencies": {
     "@electron/remote": "^2.0.10",
@@ -73,7 +169,6 @@
     "@rollup/plugin-typescript": "^11.1.2",
     "@tsconfig/svelte": "^4.0.1",
     "@types/clean-css": "^4.2.6",
-    "@types/html-minifier": "^4.0.2",
     "@types/node": "^18.15.10",
     "@typescript-eslint/eslint-plugin": "^5.60.1",
     "@typescript-eslint/parser": "^5.60.1",
@@ -85,9 +180,6 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-jsdoc": "^46.4.2",
     "eslint-plugin-prefer-arrow": "^1.2.3",
-    "html-minifier": "^4.0.0",
-    "nodemon": "^2.0.22",
-    "npm-run-all": "^4.1.5",
     "prettier": "^2.8.8",
     "prettier-plugin-svelte": "^2.10.1",
     "rollup": "^3.25.3",
@@ -99,7 +191,8 @@
     "svelte-check": "^3.4.4",
     "svelte-preprocess": "^5.0.4",
     "tslib": "^2.6.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.1.6",
+    "wireit": "^0.9.5"
   },
   "build": {
     "productName": "Replay Manager",
