@@ -15,12 +15,20 @@
   export let activeAction: Writable<SvelteComponent | false>;
 
   let task: ReduceSizeTask;
-  let targetSizeInKb = db.settings.reduceSizeTarget;
-  $: db.settings.reduceSizeTarget = targetSizeInKb;
+  // Typing nothing into the size input field makes this null
+  let targetSizeInKb: number | null = db.settings.reduceSizeTarget;
+
+  // Only save valid values to the database
+  $: if (targetSizeInKb && targetSizeInKb > 0) {
+    db.settings.reduceSizeTarget = targetSizeInKb;
+  }
+
+  // Disable start button if input is invalid
+  $: isValidInput = targetSizeInKb !== null && targetSizeInKb > 0;
 
   async function executeTask() {
     console.log("Reducing Video Size to", targetSizeInKb, "KB");
-    task = new ReduceSizeTask($selectedVideos[0], $selectedVariation, targetSizeInKb);
+    task = new ReduceSizeTask($selectedVideos[0], $selectedVariation, targetSizeInKb!);
     activeTasks.add(task);
     await task.execute();
 
@@ -35,11 +43,10 @@
 {#if !task}
   <!-- TODO: make this look half-decent -->
   <div class="wrapper">
-    <!-- TODO: save previous value -->
     <input type="number" bind:value="{targetSizeInKb}" placeholder="Size in KB" />
   </div>
   <div>
-    <button on:click="{executeTask}">Start</button>
+    <button on:click="{executeTask}" disabled="{!isValidInput}">Start</button>
     <button on:click="{() => ($activeAction = false)}">Cancel</button>
   </div>
 {:else}

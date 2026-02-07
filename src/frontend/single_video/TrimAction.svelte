@@ -21,8 +21,11 @@
     return Math.round(time * 100) / 100;
   }
 
-  let start = 0;
-  let end = round($videoElem!.duration);
+  let start: number | null = 0;
+  let end: number | null = round($videoElem!.duration);
+
+  // Disable trim button if inputs are invalid
+  $: isValidInput = start !== null && end !== null && start >= 0 && end > start;
 
   function setEndNow() {
     end = round($videoElem!.currentTime);
@@ -40,7 +43,7 @@
   let task: TrimTask;
   async function executeTrim() {
     console.log("Trimming video from " + start + " to " + end);
-    task = new TrimTask($selectedVideos[0], $selectedVariation, start, end);
+    task = new TrimTask($selectedVideos[0], $selectedVariation, start!, end!);
     activeTasks.add(task);
     await task.execute();
 
@@ -68,7 +71,7 @@
     </div>
   </div>
   <div>
-    <button on:click="{executeTrim}">Trim</button>
+    <button on:click="{executeTrim}" disabled="{!isValidInput}">Trim</button>
     <button on:click="{() => ($activeAction = false)}">Cancel</button>
   </div>
 {:else}
