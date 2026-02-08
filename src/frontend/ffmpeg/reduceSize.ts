@@ -6,6 +6,7 @@ import { mkdir, rm, unlink } from "fs/promises";
 import { ffprobe } from "./ffprobe";
 import { deferFfmpeg } from "./deferFfmpeg";
 import { dirname, join } from "path";
+import { markVideoUpdated } from "../stores";
 
 export class ReduceSizeTask extends Task {
   name = "Reduce Size";
@@ -68,6 +69,7 @@ export class ReduceSizeTask extends Task {
           actions: [...(variation?.actions ?? []), { type: "reduceSize", args: { videoKbps: targetSize } }],
           path: this.output,
         });
+        markVideoUpdated(video);
         await rm(this.tempDir, { recursive: true, force: true }).catch(() => console.error);
       },
     ];

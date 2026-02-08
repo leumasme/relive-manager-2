@@ -4,6 +4,7 @@ import type { Variation, Video } from "../database";
 import { generateVariationName, generateVariationPath } from "../utils";
 import { createFolderTaskPart, Task } from "./task";
 import { unlink } from "fs/promises";
+import { markVideoUpdated } from "../stores";
 
 export class TrimTask extends Task {
   name = "Trim";
@@ -26,6 +27,7 @@ export class TrimTask extends Task {
           actions: [...(variation?.actions ?? []), { type: "trim", args: { start, end } }],
           path: this.output,
         });
+        markVideoUpdated(video);
       },
     ];
   }

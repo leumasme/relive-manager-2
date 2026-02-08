@@ -22,3 +22,12 @@ function createTaskStore(): TaskStore {
   };
 }
 export const activeTasks = createTaskStore();
+
+let selectedVideosValue: Video[] = [];
+selectedVideos.subscribe((value) => {
+  selectedVideosValue = value;
+}); 
+export function markVideoUpdated(video: Video) {
+  if (!selectedVideosValue.includes(video)) return;
+  selectedVideos.update((videos) => videos);
+}

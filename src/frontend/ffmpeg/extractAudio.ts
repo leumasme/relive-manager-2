@@ -3,6 +3,7 @@ import type { Variation, Video } from "../database";
 import { generateVariationName, generateVariationPath } from "../utils";
 import { createFolderTaskPart, Task } from "./task";
 import { unlink } from "fs/promises";
+import { markVideoUpdated } from "../stores";
 
 export class ExtractAudioTask extends Task {
   name = "Extract Audio";
@@ -23,6 +24,7 @@ export class ExtractAudioTask extends Task {
           actions: [...(variation?.actions ?? []), { type: "extractAudio" }],
           path: this.output,
         });
+        markVideoUpdated(video);
       },
     ];
   }
