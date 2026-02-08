@@ -53,7 +53,10 @@ export class FfmpegJob extends (EventEmitter as new () => TypedEmitter<FFmpegEve
     });
     this.task.on("error", (err, stdout, stderr) => {
       if (this.canceled) this.emit("canceled");
-      else this.emit("error", err, stdout, stderr);
+      else {
+        console.error("FfmpegJob got an error from ffmpeg", err, stdout, stderr);
+        this.emit("error", err, stdout, stderr);
+      }
     });
     this.task.on("end", (stdout, stderr) => {
       this.completed = true;
