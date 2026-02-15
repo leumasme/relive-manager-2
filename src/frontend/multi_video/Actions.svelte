@@ -13,10 +13,10 @@
 </style>
 
 <script lang="ts">
-  import type { SvelteComponent } from "svelte";
+  import type { ComponentType } from "svelte";
   import { writable } from "svelte/store";
   import DeleteAllAction from "./DeleteAllAction.svelte";
-  let activeAction = writable<typeof SvelteComponent | false>(false);
+  let activeAction = writable<ComponentType | false>(false);
 
   // TODO: Handle switching video/variation while an action is open/running
 

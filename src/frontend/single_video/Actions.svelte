@@ -13,7 +13,7 @@
 </style>
 
 <script lang="ts">
-  import type { SvelteComponent } from "svelte";
+  import type { ComponentType } from "svelte";
   import { writable } from "svelte/store";
   import { selectedVideos, selectedVariation } from "../stores";
   import { ensureAudioStreams } from "../ffmpeg/ffprobe";
@@ -23,7 +23,7 @@
   import ExportAction from "./ExportAction.svelte";
   import TrimAction from "./TrimAction.svelte";
   import ReduceSizeAction from "./ReduceSizeAction.svelte";
-  let activeAction = writable<typeof SvelteComponent | false>(false);
+  let activeAction = writable<ComponentType | false>(false);
 
   // Audio stream metadata for the currently selected video/variation.
   // undefined = not yet probed, null = probe failed
