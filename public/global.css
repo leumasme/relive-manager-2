@@ -4,8 +4,12 @@ html, body {
     height: 100%;
 }
 
+:root {
+    --color-error: #e74c3c;
+}
+
 body {
-    color: #555;
+    color: #d4d4d4;
     margin: 0;
     padding: 8px;
     box-sizing: border-box;

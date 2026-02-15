@@ -3,6 +3,10 @@ export type Tag = {
   color?: string;
 };
 
+export type AudioStreamMeta = {
+  codec: string;
+};
+
 export type Action =
   | {
       type: "trim";
@@ -14,12 +18,14 @@ export type Action =
     }
   | {
       type: "extractAudio";
+      args?: { mode: "single" | "pick" | "merge"; streamIndex?: number };
     };
 
 export type Variation = {
   path: string;
   name: string;
   actions: Readonly<Action>[]; // Actions may be re-used as references, so they should be immutable
+  audioStreams?: AudioStreamMeta[]; // undefined = not yet probed
 };
 
 export type Video = {
@@ -28,6 +34,7 @@ export type Video = {
   seen: boolean;
   tags: Tag[];
   variations: Variation[];
+  audioStreams?: AudioStreamMeta[]; // undefined = not yet probed
 };
 
 export type DatabaseRoot = {

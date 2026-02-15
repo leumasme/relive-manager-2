@@ -26,6 +26,8 @@ export class TrimTask extends Task {
           name: generateVariationName("Trim", video),
           actions: [...(variation?.actions ?? []), { type: "trim", args: { start, end } }],
           path: this.output,
+          // Trim doesn't modify audio
+          audioStreams: (variation ?? video).audioStreams,
         });
         markVideoUpdated(video);
       },

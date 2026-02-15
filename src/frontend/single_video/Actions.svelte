@@ -15,12 +15,39 @@
 <script lang="ts">
   import type { SvelteComponent } from "svelte";
   import { writable } from "svelte/store";
+  import { selectedVideos, selectedVariation } from "../stores";
+  import { ensureAudioStreams } from "../ffmpeg/ffprobe";
+  import type { AudioStreamMeta } from "../database";
   import DeleteAction from "./DeleteAction.svelte";
   import ExtractAudioAction from "./ExtractAudioAction.svelte";
   import ExportAction from "./ExportAction.svelte";
   import TrimAction from "./TrimAction.svelte";
   import ReduceSizeAction from "./ReduceSizeAction.svelte";
   let activeAction = writable<typeof SvelteComponent | false>(false);
+
+  // Audio stream metadata for the currently selected video/variation.
+  // undefined = not yet probed, null = probe failed
+  let audioStreams: AudioStreamMeta[] | undefined | null = undefined;
+
+  // Probe audio streams whenever the selected video/variation changes
+  $: {
+    const target = $selectedVariation ?? $selectedVideos[0];
+    if (target) {
+      audioStreams = undefined;
+      ensureAudioStreams(target)
+        .then((streams) => {
+          // Guard against stale results if selection changed during probe
+          const current = $selectedVariation ?? $selectedVideos[0];
+          if (current === target) audioStreams = streams;
+        })
+        .catch(() => {
+          const current = $selectedVariation ?? $selectedVideos[0];
+          if (current === target) audioStreams = null;
+        });
+    }
+  }
+
+  $: hasAudio = audioStreams?.length !== 0;
 
   // TODO: Handle switching video/variation while an action is open/running
 
@@ -43,7 +70,9 @@
 
 <div class="wrapper" class:hidden="{$activeAction}">
   <button on:click="{actionDelete}"> Delete </button>
-  <button on:click="{actionExtractSound}"> Extract Audio </button>
+  {#if hasAudio}
+    <button on:click="{actionExtractSound}"> Extract Audio </button>
+  {/if}
   <button on:click="{actionOpenExplorer}"> Export </button>
   <button on:click="{actionTrim}"> Trim </button>
   <button on:click="{actionReduceSize}"> Reduce Size </button>

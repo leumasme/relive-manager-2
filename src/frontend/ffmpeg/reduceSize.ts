@@ -68,6 +68,7 @@ export class ReduceSizeTask extends Task {
           name: generateVariationName("Shrunk", video),
           actions: [...(variation?.actions ?? []), { type: "reduceSize", args: { videoKbps: targetSize } }],
           path: this.output,
+          audioStreams: (variation ?? video).audioStreams,
         });
         markVideoUpdated(video);
         await rm(this.tempDir, { recursive: true, force: true }).catch(() => console.error);

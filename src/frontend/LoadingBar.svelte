@@ -9,7 +9,7 @@
     height: 25px;
   }
   .failed {
-    background-color: red;
+    background-color: var(--color-error);
   }
 </style>
 
