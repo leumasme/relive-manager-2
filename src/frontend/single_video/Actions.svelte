@@ -23,6 +23,7 @@
   import ExportAction from "./ExportAction.svelte";
   import TrimAction from "./TrimAction.svelte";
   import ReduceSizeAction from "./ReduceSizeAction.svelte";
+  import MuteAudioAction from "./MuteAudioAction.svelte";
   let activeAction = writable<ComponentType | false>(false);
 
   // Audio stream metadata for the currently selected video/variation.
@@ -66,12 +67,16 @@
   function actionReduceSize() {
     $activeAction = ReduceSizeAction;
   }
+  function actionMuteAudio() {
+    $activeAction = MuteAudioAction;
+  }
 </script>
 
 <div class="wrapper" class:hidden="{$activeAction}">
   <button on:click="{actionDelete}"> Delete </button>
   {#if hasAudio}
     <button on:click="{actionExtractSound}"> Extract Audio </button>
+    <button on:click="{actionMuteAudio}"> Mute Audio </button>
   {/if}
   <button on:click="{actionOpenExplorer}"> Export </button>
   <button on:click="{actionTrim}"> Trim </button>

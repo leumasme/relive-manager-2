@@ -19,6 +19,9 @@ export type Action =
   | {
       type: "extractAudio";
       args?: { mode: "single" | "pick" | "merge"; streamIndex?: number };
+    }
+  | {
+      type: "muteAudio";
     };
 
 export type Variation = {
