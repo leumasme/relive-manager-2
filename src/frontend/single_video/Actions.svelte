@@ -49,6 +49,7 @@
   }
 
   $: hasAudio = audioStreams?.length !== 0;
+  $: canExtractAudio = audioStreams != undefined;
 
   // TODO: Handle switching video/variation while an action is open/running
 
@@ -75,8 +76,8 @@
 <div class="wrapper" class:hidden="{$activeAction}">
   <button on:click="{actionDelete}"> Delete </button>
   {#if hasAudio}
-    <button on:click="{actionExtractSound}"> Extract Audio </button>
-    <button on:click="{actionMuteAudio}"> Mute Audio </button>
+    <button on:click="{actionExtractSound}" disabled={!canExtractAudio}> Extract Audio </button>
+    <button on:click="{actionMuteAudio}" disabled={!canExtractAudio}> Mute Audio </button>
   {/if}
   <button on:click="{actionOpenExplorer}"> Export </button>
   <button on:click="{actionTrim}"> Trim </button>
